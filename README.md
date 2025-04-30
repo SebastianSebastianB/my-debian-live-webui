@@ -54,7 +54,7 @@ sudo apt install nano debootstrap git live-build
 sudo mkdir moj-debian
 cd moj-debian
 ```
-:bulb: Wczytkie następne komendy wykonywane będą z poziomu folderu projektu.
+:bulb: Wszystkie następne komendy wykonywane będą z poziomu folderu projektu.
 
 ---
 
