@@ -38,8 +38,7 @@ Dzięki temu możesz stworzyć własną, spersonalizowaną dystrybucję Debiana!
 - Połączenie z internetem
 
 ---
-
-## 1. Instalacja narzędzi
+## Instalacja narzędzi
 
 ```bash
 sudo apt update
@@ -48,7 +47,7 @@ sudo apt install nano debootstrap git live-build
 
 ---
 
-## 2. Konfiguracja projektu
+## Konfiguracja projektu
 
 ```bash
 sudo mkdir moj-debian
@@ -58,7 +57,7 @@ cd moj-debian
 
 ---
 
-## 3. Konfiguracja live-build
+## Konfiguracja live-build
 
 ```bash
 lb clean
@@ -69,7 +68,7 @@ sudo lb config -d bookworm --debian-installer cdrom --archive-areas "main contri
 
 ---
 
-## 4. Dodanie pakietów
+## Dodanie pakietów
 
 ### 4a. Pakiety systemowe
 
@@ -146,7 +145,7 @@ To daje Ci pełną kontrolę nad wersjami bibliotek Python i pewność, że śro
 
 ---
 
-## 5. Tworzenie WebUI
+## Tworzenie WebUI
 
 ### 5.1. Utwórz folder na aplikację
 
@@ -238,7 +237,7 @@ chmod +x config/hooks/normal/install-webui.chroot
 
 ---
 
-## 6. Konfiguracja systemd
+## Konfiguracja systemd
 Tworzymy usługę mywebui.service, która będzie uruchamiała nasze WebUI po każdym starcie systemu
 
 ### 6.1. Plik usługi
@@ -319,7 +318,7 @@ moj-debian/
 - `config/includes.chroot/etc/systemd/system/` – plik definicji usługi systemd dla WebUI.
 
 
-## 7. Budowanie obrazu ISO
+## Budowanie obrazu ISO
 
 Aby zbudować własny obraz ISO Debiana z przygotowaną konfiguracją, uruchom poniższe polecenie w katalogu projektu:
 
@@ -361,7 +360,7 @@ http://ADRES_IP:8080
 
 ---
 
-## 8. Najczęstsze problemy
+## Najczęstsze problemy
 
 > :warning: **Problem:** Błąd z debootstrap  
 > **Rozwiązanie:**  
@@ -387,7 +386,7 @@ http://ADRES_IP:8080
 
 ---
 
-## 9. Autor i licencja
+## Autor i licencja
 
 Autor: [Sebastian Bartel](https://github.com/SebastianSebastianB)  
 Licencja: MIT
