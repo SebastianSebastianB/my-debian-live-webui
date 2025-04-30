@@ -337,6 +337,11 @@ Ten plik możesz:
 - **Zainstalować system** na dysku lub używać w trybie Live
 
 💡 **Wskazówka:**  
+Przed każdą modyfikacją oraz budowaniem ISO należy uruchomić:
+```bash
+lb clean
+lb config ... nasze parametry ...
+```
 Jeśli pojawią się błędy podczas budowania, sprawdź komunikaty w terminalu – najczęściej dotyczą one brakujących pakietów lub błędów w konfiguracji.
 
 ---

@@ -1,0 +1,9 @@
+sudo
+ufw
+curl
+wget
+git
+ifupdown
+wpasupplicant
+firmware-iwlwifi
+isc-dhcp-client
