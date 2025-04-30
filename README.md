@@ -36,6 +36,7 @@ Dzięki temu możesz stworzyć własną, spersonalizowaną dystrybucję Debiana!
 - System: Debian 12 (Bookworm)
 - Uprawnienia sudo
 - Połączenie z internetem
+- około 7GB wolnego miejsca na dysku
 
 ---
 ## Instalacja narzędzi
