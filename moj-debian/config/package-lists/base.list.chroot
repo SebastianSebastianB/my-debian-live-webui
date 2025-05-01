@@ -1,3 +1,4 @@
+# Podstawowe narzędzia i pakiety systemowe (konsola)
 sudo
 ufw
 curl
@@ -7,3 +8,8 @@ ifupdown
 wpasupplicant
 firmware-iwlwifi
 isc-dhcp-client
+
+# Podstawowe środowisko graficzne i narzędzia
+xfce4
+openbox
+network-manager
