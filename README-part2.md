@@ -28,7 +28,8 @@ Takie rozszerzenia pozwolą stworzyć wygodne centrum zarządzania systemem bezp
 ---
 
 > ⚠️❗**Uwaga!**  
-> W tej części przygotowujemy wersję konsolową Debiana (bez GUI).  
+> W tej części przygotowujemy wersję konsolową Debiana (bez GUI). Jeśli mamy własne rozbudowane WebUI, przez które użytkownik komunikuje się z naszym systemem/oprogramowaniem i wykonuje na nim wszystkie istotne operacje, to środowisko graficzne linux nie jest potrzebne.
+>  
 > Przed rozpoczęciem usuń z pliku (wykorzystując nano) [`moj-debian/config/package-lists/base.list.chroot`](moj-debian/config/package-lists/base.list.chroot) następujące linie:
 >
 > ```
@@ -52,6 +53,13 @@ Takie rozszerzenia pozwolą stworzyć wygodne centrum zarządzania systemem bezp
 > ```
 
 ## 1. Wyświetlanie adresu IP WebUI na konsoli
+
+Na początku czyścimy nasz projekt z poprzedniego build i ponownie konfigurujemy:
+
+```bash
+lb clean
+sudo lb config -d bookworm --debian-installer cdrom --archive-areas "main contrib non-free non-free-firmware" --debootstrap-options "--variant=minbase"
+```
 
 Aby użytkownik po zalogowaniu widział adres IP WebUI, wykonaj poniższe kroki:
 
@@ -154,6 +162,12 @@ Aby ograniczyć dostęp do folderu `/opt/mywebui` tylko dla wybranych użytkowni
 
 ---
 
+Na zakończenie budujemy nasz obraz ISO:
+
+```bash
+sudo lb build
+```
+
 ---
 
 ## 4. Podsumowanie
@@ -192,7 +206,8 @@ moj-debian/
 
 ## Autor i licencja
 
-Autor: [Sebastian Bartel](https://github.com/SebastianSebastianB)  
-Licencja: MIT
+- Autor: [Sebastian Bartel](https://github.com/SebastianSebastianB)
+- E-mail: umbraos@icloud.com
+- Licencja: MIT
 
 ---

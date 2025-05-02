@@ -19,19 +19,19 @@ Dzięki temu możesz stworzyć własną, spersonalizowaną dystrybucję Debiana!
 
 ## 📋 Spis treści
 
-1. [Wymagania](#wymagania)
-2. [Instalacja narzędzi](#instalacja-narzędzi)
-3. [Konfiguracja projektu](#konfiguracja-projektu)
-4. [Dodanie pakietów](#dodanie-pakietów)
-5. [Tworzenie WebUI](#tworzenie-webui)
-6. [Konfiguracja systemd](#konfiguracja-systemd)
-7. [Budowanie obrazu ISO](#budowanie-obrazu-iso)
-8. [Najczęstsze problemy](#najczęstsze-problemy)
-9. [Autor i licencja](#autor-i-licencja)
+1. [Wymagania](#1-wymagania-🛠️)
+2. [Instalacja narzędzi](#2-instalacja-narzędzi)
+3. [Konfiguracja projektu](#3-konfiguracja-projektu)
+4. [Dodanie pakietów](#4-dodanie-pakietów)
+5. [Tworzenie WebUI](#5-tworzenie-webui)
+6. [Konfiguracja systemd](#6-konfiguracja-systemd)
+7. [Budowanie obrazu ISO](#7-budowanie-obrazu-iso)
+8. [Najczęstsze problemy](#8-najczęstsze-problemy)
+9. [Autor i licencja](#9-autor-i-licencja)
 
 ---
 
-## 🛠️ Wymagania
+## 1. Wymagania 🛠️
 
 - System: Debian 12 (Bookworm)
 - Uprawnienia sudo
@@ -39,7 +39,7 @@ Dzięki temu możesz stworzyć własną, spersonalizowaną dystrybucję Debiana!
 - około 7GB wolnego miejsca na dysku
 
 ---
-## Instalacja narzędzi
+## 2. Instalacja narzędzi
 
 ```bash
 sudo apt update
@@ -48,7 +48,7 @@ sudo apt install nano debootstrap git live-build
 
 ---
 
-## Konfiguracja projektu
+## 3. Konfiguracja projektu
 
 ```bash
 sudo mkdir moj-debian
@@ -58,7 +58,7 @@ cd moj-debian
 
 ---
 
-## Konfiguracja live-build
+### Konfiguracja live-build
 
 ```bash
 lb clean
@@ -69,7 +69,7 @@ sudo lb config -d bookworm --debian-installer cdrom --archive-areas "main contri
 
 ---
 
-## Dodanie pakietów
+## 4. Dodanie pakietów
 
 ### 4a. Pakiety systemowe
 
@@ -146,7 +146,7 @@ To daje Ci pełną kontrolę nad wersjami bibliotek Python i pewność, że śro
 
 ---
 
-## Tworzenie WebUI
+## 5. Tworzenie WebUI
 
 ### 5.1. Utwórz folder na aplikację
 
@@ -238,7 +238,7 @@ chmod +x config/hooks/normal/install-webui.chroot
 
 ---
 
-## Konfiguracja systemd
+## 6. Konfiguracja systemd
 Tworzymy usługę mywebui.service, która będzie uruchamiała nasze WebUI po każdym starcie systemu
 
 ### 6.1. Plik usługi
@@ -319,7 +319,7 @@ moj-debian/
 - `config/includes.chroot/etc/systemd/system/` – plik definicji usługi systemd dla WebUI.
 
 
-## Budowanie obrazu ISO
+## 7. Budowanie obrazu ISO
 
 Aby zbudować własny obraz ISO Debiana z przygotowaną konfiguracją, uruchom poniższe polecenie w katalogu projektu:
 
@@ -366,7 +366,7 @@ http://ADRES_IP:8080
 
 ---
 
-## Najczęstsze problemy
+## 8. Najczęstsze problemy
 
 > :warning: **Problem:** Błąd z debootstrap  
 > **Rozwiązanie:**  
@@ -394,10 +394,11 @@ http://ADRES_IP:8080
 
 ---
 
-## Autor i licencja
+## 9. Autor i licencja
 
-Autor: [Sebastian Bartel](https://github.com/SebastianSebastianB)  
-Licencja: MIT
+- Autor: [Sebastian Bartel](https://github.com/SebastianSebastianB)
+- E-mail: umbraos@icloud.com
+- Licencja: MIT
 
 ---
 

@@ -1,0 +1,15 @@
+[Unit]
+Description=My WebUI
+
+[Service]
+# Uruchamia aplikację WebUI bezpośrednio z systemowego Pythona
+# ExecStart=/usr/bin/python3 /opt/mywebui/app.py
+
+# Uruchom aplikację WebUI z virtualenv
+ExecStart=/opt/mywebui/venv/bin/python /opt/mywebui/app.py
+WorkingDirectory=/opt/mywebui
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+#!/bin/sh
+python3 -m venv /opt/mywebui/venv
+/opt/mywebui/venv/bin/pip install -r /opt/mywebui/requirements.txt
+chmod 700 /opt/mywebui
+chown root:root /opt/mywebui
