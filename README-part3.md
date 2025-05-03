@@ -48,7 +48,7 @@ Wszystkie kolejne polecenia wykonuj w tym katalogu.
 
 ```bash
 lb clean
-sudo lb config -d bookworm --debian-installer cdrom --archive-areas "main contrib non-free non-free-firmware" --debootstrap-options "--variant=minbase"
+sudo lb config -d bookworm --debian-installer live --archive-areas "main contrib non-free non-free-firmware" --debootstrap-options "--variant=minbase"
 ```
 
 ---
@@ -76,6 +76,7 @@ ifupdown
 wpasupplicant
 firmware-iwlwifi
 isc-dhcp-client
+grub-efi
 
 # Środowisko graficzne (XFCE lub minimalne Xorg)
 xorg
@@ -231,6 +232,61 @@ Nadaj uprawnienia:
 ```bash
 chmod +x config/hooks/normal/enable-myopencvapp.chroot
 ```
+
+## 5.3. Automatyczne logowanie do sesji graficznej z nodm
+
+Aby aplikacja OpenCV GUI uruchamiała się automatycznie po starcie systemu bez ekranu logowania, możesz użyć menedżera logowania `nodm` (bardzo lekki, idealny do kiosków i systemów embedded).
+
+### Instalacja nodm
+
+Dodaj do pliku `config/package-lists/base.list.chroot`:
+
+```
+nodm
+```
+
+### Konfiguracja nodm
+
+Utwórz plik autostartu sesji:
+
+```bash
+mkdir -p config/includes.chroot/etc/X11/Xsession.d/
+nano config/includes.chroot/etc/X11/Xsession.d/99-opencv-autostart
+```
+
+Wklej:
+
+```bash
+#!/bin/sh
+/opt/myopencvapp/venv/bin/python /opt/myopencvapp/app.py
+```
+
+Nadaj uprawnienia:
+
+```bash
+chmod +x config/includes.chroot/etc/X11/Xsession.d/99-opencv-autostart
+```
+
+W pliku `config/includes.chroot/etc/default/nodm` ustaw automatyczne logowanie:
+
+```bash
+mkdir -p config/includes.chroot/etc/default
+nano config/includes.chroot/etc/default/nodm
+```
+
+Wklej:
+
+```
+NODM_ENABLED=true
+NODM_USER=root
+```
+
+---
+
+> **Uwaga:**  
+> `nodm` to minimalistyczny menedżer logowania, który automatycznie loguje wybranego użytkownika do sesji graficznej bez pytania o hasło.  
+> Dzięki temu aplikacja GUI startuje natychmiast po uruchomieniu systemu, bez ekranu logowania.  
+> Rozwiązanie to jest szczególnie polecane do systemów typu kiosk, panel operatorski HMI, urządzenia embedded lub demo.
 
 ---
 

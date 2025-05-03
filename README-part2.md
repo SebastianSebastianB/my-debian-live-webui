@@ -50,6 +50,7 @@ Takie rozszerzenia pozwolą stworzyć wygodne centrum zarządzania systemem bezp
 > wpasupplicant
 > firmware-iwlwifi
 > isc-dhcp-client
+> grub-efi
 > ```
 
 ## 1. Wyświetlanie adresu IP WebUI na konsoli
@@ -58,7 +59,7 @@ Na początku czyścimy nasz projekt z poprzedniego build i ponownie konfigurujem
 
 ```bash
 lb clean
-sudo lb config -d bookworm --debian-installer cdrom --archive-areas "main contrib non-free non-free-firmware" --debootstrap-options "--variant=minbase"
+sudo lb config -d bookworm --debian-installer live --archive-areas "main contrib non-free non-free-firmware" --debootstrap-options "--variant=minbase"
 ```
 
 Aby użytkownik po zalogowaniu widział adres IP WebUI, wykonaj poniższe kroki:

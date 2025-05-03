@@ -62,7 +62,7 @@ cd moj-debian
 
 ```bash
 lb clean
-sudo lb config -d bookworm --debian-installer cdrom --archive-areas "main contrib non-free non-free-firmware" --debootstrap-options "--variant=minbase"
+sudo lb config -d bookworm --debian-installer live --archive-areas "main contrib non-free non-free-firmware" --debootstrap-options "--variant=minbase"
 ```
 :bulb: Szczegółowy opis parametrów konfiguracyjnych jest w dokumentacji: 
 [dokumentacja configuracji](https://manpages.debian.org/unstable/live-build/lb_config.1.en.html)
@@ -92,6 +92,7 @@ ifupdown
 wpasupplicant
 firmware-iwlwifi
 isc-dhcp-client
+grub-efi
 
 # Podstawowe środowisko graficzne i narzędzia
 xfce4

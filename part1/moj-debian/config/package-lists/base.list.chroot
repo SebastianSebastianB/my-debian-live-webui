@@ -8,6 +8,7 @@ ifupdown
 wpasupplicant
 firmware-iwlwifi
 isc-dhcp-client
+grub-efi
 
 # Podstawowe środowisko graficzne i narzędzia
 xfce4

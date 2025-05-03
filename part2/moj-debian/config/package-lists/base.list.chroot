@@ -8,3 +8,4 @@ ifupdown
 wpasupplicant
 firmware-iwlwifi
 isc-dhcp-client
+grub-efi
