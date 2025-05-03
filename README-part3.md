@@ -118,27 +118,44 @@ Wklej poniższy kod:
 ```python
 import cv2
 import numpy as np
+import subprocess
+
+def get_screen_resolution():
+    try:
+        output = subprocess.check_output("xrandr | grep '*'", shell=True).decode()
+        res = output.split()[0]
+        width, height = map(int, res.split('x'))
+        return width, height
+    except Exception:
+        return 1024, 768
 
 def main():
-    # Najpierw utwórz okno jako WINDOW_NORMAL
+    screen_w, screen_h = get_screen_resolution()
+    img = np.zeros((screen_h, screen_w, 3), dtype=np.uint8)
+
     cv2.namedWindow("OpenCV GUI", cv2.WINDOW_NORMAL)
-    # Wyświetl pierwszy raz, żeby okno powstało
-    img = np.zeros((600, 1000, 3), dtype=np.uint8)
+    cv2.setWindowProperty("OpenCV GUI", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     cv2.imshow("OpenCV GUI", img)
     cv2.waitKey(1)
-    # Teraz ustaw pełny ekran
-    cv2.setWindowProperty("OpenCV GUI", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
-    # Teraz rysuj zawartość
-    cv2.putText(img, "OpenCV GUI Demo", (250, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 3)
+    # Informacja o GUI
+    cv2.putText(img, "OpenCV GUI Demo", (int(screen_w*0.2), int(screen_h*0.25)), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 3)
+    # Informacja o rozdzielczosci
+    res_text = f"Resolution: {screen_w}x{screen_h}"
+    cv2.putText(img, res_text, (int(screen_w*0.2), int(screen_h*0.25)+60), cv2.FONT_HERSHEY_SIMPLEX, 1, (200,200,0), 2)
+
     button_color = (40, 180, 40)
-    button_pos = (400, 400, 600, 500)
-    cv2.rectangle(img, (button_pos[0], button_pos[1]), (button_pos[2], button_pos[3]), button_color, -1)
-    cv2.putText(img, "Exit GUI", (button_pos[0]+30, button_pos[1]+60), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 3)
+    btn_w, btn_h = 200, 100
+    btn_x1 = screen_w//2 - btn_w//2
+    btn_y1 = screen_h//2 - btn_h//2
+    btn_x2 = btn_x1 + btn_w
+    btn_y2 = btn_y1 + btn_h
+    cv2.rectangle(img, (btn_x1, btn_y1), (btn_x2, btn_y2), button_color, -1)
+    cv2.putText(img, "Exit GUI", (btn_x1+20, btn_y1+60), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 3)
 
     def on_mouse(event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN:
-            if button_pos[0] <= x <= button_pos[2] and button_pos[1] <= y <= button_pos[3]:
+            if btn_x1 <= x <= btn_x2 and btn_y1 <= y <= btn_y2:
                 cv2.destroyAllWindows()
                 exit(0)
     cv2.setMouseCallback("OpenCV GUI", on_mouse)
