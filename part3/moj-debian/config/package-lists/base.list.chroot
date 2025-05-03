@@ -1,0 +1,16 @@
+# Podstawowe narzędzia i pakiety systemowe
+sudo
+ufw
+curl
+wget
+git
+ifupdown
+wpasupplicant
+firmware-iwlwifi
+isc-dhcp-client
+grub-efi
+
+# Środowisko graficzne (XFCE lub minimalne Xorg)
+xorg
+nodm
+# xfce4

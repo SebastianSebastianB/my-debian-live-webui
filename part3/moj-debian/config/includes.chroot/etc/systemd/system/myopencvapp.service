@@ -1,0 +1,11 @@
+[Unit]
+Description=My OpenCV GUI App
+
+[Service]
+ExecStart=/opt/myopencvapp/venv/bin/python /opt/myopencvapp/app.py
+WorkingDirectory=/opt/myopencvapp
+Restart=always
+User=root
+
+[Install]
+WantedBy=graphical.target

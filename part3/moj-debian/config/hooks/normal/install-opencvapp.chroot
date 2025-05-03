@@ -1,0 +1,5 @@
+#!/bin/sh
+python3 -m venv /opt/myopencvapp/venv
+/opt/myopencvapp/venv/bin/pip install -r /opt/myopencvapp/requirements.txt
+chmod 700 /opt/myopencvapp
+chown root:root /opt/myopencvapp
