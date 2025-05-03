@@ -120,19 +120,21 @@ import cv2
 import numpy as np
 
 def main():
-    # Tworzymy tło i przycisk
+    # Najpierw utwórz okno jako WINDOW_NORMAL
+    cv2.namedWindow("OpenCV GUI", cv2.WINDOW_NORMAL)
+    # Wyświetl pierwszy raz, żeby okno powstało
     img = np.zeros((600, 1000, 3), dtype=np.uint8)
+    cv2.imshow("OpenCV GUI", img)
+    cv2.waitKey(1)
+    # Teraz ustaw pełny ekran
+    cv2.setWindowProperty("OpenCV GUI", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+    # Teraz rysuj zawartość
     cv2.putText(img, "OpenCV GUI Demo", (250, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 3)
     button_color = (40, 180, 40)
     button_pos = (400, 400, 600, 500)
     cv2.rectangle(img, (button_pos[0], button_pos[1]), (button_pos[2], button_pos[3]), button_color, -1)
     cv2.putText(img, "Exit GUI", (button_pos[0]+30, button_pos[1]+60), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 3)
-
-    # Najpierw tworzymy okno
-    cv2.namedWindow("OpenCV GUI", cv2.WINDOW_NORMAL)
-    cv2.imshow("OpenCV GUI", img)
-    # Teraz ustawiamy pełny ekran
-    cv2.setWindowProperty("OpenCV GUI", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
     def on_mouse(event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN:
