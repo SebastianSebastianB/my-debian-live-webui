@@ -73,6 +73,9 @@ curl
 wget
 git
 ifupdown
+wpasupplicant
+firmware-iwlwifi
+isc-dhcp-client
 
 # Środowisko graficzne (XFCE lub minimalne Xorg)
 xorg
