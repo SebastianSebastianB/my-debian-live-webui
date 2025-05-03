@@ -134,7 +134,7 @@ def main():
     img = np.zeros((screen_h, screen_w, 3), dtype=np.uint8)
 
     cv2.namedWindow("OpenCV GUI", cv2.WINDOW_NORMAL)
-    cv2.setWindowProperty("OpenCV GUI", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    cv2.resizeWindow("OpenCV GUI", screen_w, screen_h)
     cv2.imshow("OpenCV GUI", img)
     cv2.waitKey(1)
 
