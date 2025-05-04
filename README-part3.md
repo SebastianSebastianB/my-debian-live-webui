@@ -12,8 +12,7 @@ Dodatkowo zabezpieczymy folder z aplikacją przed niepowołanym dostępem.
 2. [Konfiguracja projektu](#2-konfiguracja-projektu)
 3. [Dodanie pakietów](#3-dodanie-pakietów)
 4. [Tworzenie aplikacji OpenCV GUI](#4-tworzenie-aplikacji-opencv-gui)
-5. [Konfiguracja systemd](#5-konfiguracja-systemd)
-
+5. [Automatyczne logowanie do sesji graficznej z nodm](#5-automatyczne-logowanie-do-sesji-graficznej-z-nodm)
 6. [Budowanie obrazu ISO](#6-budowanie-obrazu-iso)
 7. [Najczęstsze problemy](#7-najczęstsze-problemy)
 8. [Struktura katalogów](#8-struktura-katalogów)
@@ -220,51 +219,7 @@ chmod +x config/hooks/normal/install-opencvapp.chroot
 
 ---
 
-## 5. Konfiguracja systemd
-
-### 5.1. Plik usługi
-
-```bash
-mkdir -p config/includes.chroot/etc/systemd/system
-nano config/includes.chroot/etc/systemd/system/myopencvapp.service
-```
-
-Wklej:
-
-```
-[Unit]
-Description=My OpenCV GUI App
-
-[Service]
-ExecStart=/opt/myopencvapp/venv/bin/python /opt/myopencvapp/app.py
-WorkingDirectory=/opt/myopencvapp
-Restart=always
-User=root
-
-[Install]
-WantedBy=graphical.target
-```
-
-### 5.2. Hook aktywujący usługę
-
-```bash
-nano config/hooks/normal/enable-myopencvapp.chroot
-```
-
-Wklej:
-
-```bash
-#!/bin/sh
-systemctl enable myopencvapp.service
-```
-
-Nadaj uprawnienia:
-
-```bash
-chmod +x config/hooks/normal/enable-myopencvapp.chroot
-```
-
-## 5.3. Automatyczne logowanie do sesji graficznej z nodm
+## 5. Automatyczne logowanie do sesji graficznej z nodm
 
 Aby aplikacja OpenCV GUI uruchamiała się automatycznie po starcie systemu bez ekranu logowania, możesz użyć menedżera logowania `nodm` (bardzo lekki, idealny do kiosków i systemów embedded).
 
@@ -347,21 +302,18 @@ sudo lb build
 moj-debian-part3/
 ├── config/
 │   ├── includes.chroot/
-│   │   ├── opt/
-│   │   │   └── myopencvapp/
-│   │   │       ├── app.py
-│   │   │       └── requirements.txt
-│   │   └── etc/
-│   │       └── systemd/
-│   │           └── system/
-│   │               └── myopencvapp.service
+│   │   └── opt/
+│   │       └── myopencvapp/
+│   │           ├── app.py
+│   │           └── requirements.txt
+│   │ 
 │   ├── package-lists/
 │   │   ├── base.list.chroot
 │   │   └── python.list.chroot
+│   │ 
 │   └── hooks/
 │       └── normal/
-│           ├── install-opencvapp.chroot
-│           └── enable-myopencvapp.chroot
+│           └── install-opencvapp.chroot
 ```
 
 ---
