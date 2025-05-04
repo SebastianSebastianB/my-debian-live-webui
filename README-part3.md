@@ -137,6 +137,7 @@ def main():
     cv2.resizeWindow("OpenCV GUI", screen_w, screen_h)
     cv2.imshow("OpenCV GUI", img)
     cv2.waitKey(1)
+    cv2.setWindowProperty("OpenCV GUI", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
     # Informacja o GUI
     cv2.putText(img, "OpenCV GUI Demo", (int(screen_w*0.2), int(screen_h*0.25)), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 3)
