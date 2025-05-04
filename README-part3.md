@@ -14,10 +14,9 @@ Dodatkowo zabezpieczymy folder z aplikacją przed niepowołanym dostępem.
 4. [Tworzenie aplikacji OpenCV GUI](#4-tworzenie-aplikacji-opencv-gui)
 5. [Automatyczne logowanie do sesji graficznej z nodm](#5-automatyczne-logowanie-do-sesji-graficznej-z-nodm)
 6. [Budowanie obrazu ISO](#6-budowanie-obrazu-iso)
-7. [Najczęstsze problemy](#7-najczęstsze-problemy)
-8. [Struktura katalogów](#8-struktura-katalogów)
-9. [Przydatne linki](#9-przydatne-linki)
-10. [Autor i licencja](#10-autor-i-licencja)
+7. [Struktura katalogów](#8-struktura-katalogów)
+8. [Przydatne linki](#9-przydatne-linki)
+9. [Autor i licencja](#10-autor-i-licencja)
 
 ---
 
@@ -284,19 +283,8 @@ Aby zbudować własny obraz ISO Debiana z przygotowaną konfiguracją, uruchom p
 sudo lb build
 ```
 
----
 
-## 7. Najczęstsze problemy
-
-> :warning: **Problem:** Okno OpenCV nie otwiera się na pełnym ekranie  
-> **Rozwiązanie:** Upewnij się, że masz zainstalowane `xorg` i środowisko graficzne (`xfce4`).
-
-> :warning: **Problem:** Brak zależności Python  
-> **Rozwiązanie:** Sprawdź, czy plik `requirements.txt` znajduje się w `/opt/myopencvapp` i czy hook instalacyjny działa poprawnie.
-
----
-
-## 8. Struktura katalogów
+## 7. Struktura katalogów
 
 ```
 moj-debian-part3/
@@ -318,7 +306,7 @@ moj-debian-part3/
 
 ---
 
-## 9. Przydatne linki
+## 8. Przydatne linki
 
 - [OpenCV – dokumentacja](https://docs.opencv.org/)
 - [live-build lb_config – dokumentacja konfiguracji](https://manpages.debian.org/unstable/live-build/lb_config.1.en.html)
@@ -327,7 +315,7 @@ moj-debian-part3/
 
 ---
 
-## 10. Autor i licencja
+## 9. Autor i licencja
 
 - Autor: [Sebastian Bartel](https://github.com/SebastianSebastianB)
 - E-mail: umbraos@icloud.com
