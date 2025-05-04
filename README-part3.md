@@ -139,20 +139,31 @@ def main():
     cv2.waitKey(1)
     cv2.setWindowProperty("OpenCV GUI", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
-    # Informacja o GUI
+    # Tekst i rozdzielczość
     cv2.putText(img, "OpenCV GUI Demo", (int(screen_w*0.2), int(screen_h*0.25)), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 3)
-    # Informacja o rozdzielczosci
     res_text = f"Resolution: {screen_w}x{screen_h}"
     cv2.putText(img, res_text, (int(screen_w*0.2), int(screen_h*0.25)+60), cv2.FONT_HERSHEY_SIMPLEX, 1, (200,200,0), 2)
 
-    button_color = (40, 180, 40)
-    btn_w, btn_h = 200, 100
+    # Przygotowanie przycisku Exit GUI
+    button_label = "Exit GUI"
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 2
+    thickness = 3
+    (text_w, text_h), baseline = cv2.getTextSize(button_label, font, font_scale, thickness)
+    btn_w = text_w + 60
+    btn_h = text_h + 40
     btn_x1 = screen_w//2 - btn_w//2
     btn_y1 = screen_h//2 - btn_h//2
     btn_x2 = btn_x1 + btn_w
     btn_y2 = btn_y1 + btn_h
+
+    # Rysowanie przycisku
+    button_color = (40, 180, 40)
     cv2.rectangle(img, (btn_x1, btn_y1), (btn_x2, btn_y2), button_color, -1)
-    cv2.putText(img, "Exit GUI", (btn_x1+20, btn_y1+60), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 3)
+    # Tekst na środku przycisku
+    text_x = btn_x1 + (btn_w - text_w)//2
+    text_y = btn_y1 + (btn_h + text_h)//2 - 10
+    cv2.putText(img, button_label, (text_x, text_y), font, font_scale, (255,255,255), thickness)
 
     def on_mouse(event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN:
