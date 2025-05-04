@@ -13,12 +13,12 @@ Dodatkowo zabezpieczymy folder z aplikacją przed niepowołanym dostępem.
 3. [Dodanie pakietów](#3-dodanie-pakietów)
 4. [Tworzenie aplikacji OpenCV GUI](#4-tworzenie-aplikacji-opencv-gui)
 5. [Konfiguracja systemd](#5-konfiguracja-systemd)
-6. [Zabezpieczenie folderu aplikacji](#6-zabezpieczenie-folderu-aplikacji)
-7. [Budowanie obrazu ISO](#7-budowanie-obrazu-iso)
-8. [Najczęstsze problemy](#8-najczęstsze-problemy)
-9. [Struktura katalogów](#9-struktura-katalogów)
-10. [Przydatne linki](#10-przydatne-linki)
-11. [Autor i licencja](#11-autor-i-licencja)
+
+6. [Budowanie obrazu ISO](#6-budowanie-obrazu-iso)
+7. [Najczęstsze problemy](#7-najczęstsze-problemy)
+8. [Struktura katalogów](#8-struktura-katalogów)
+9. [Przydatne linki](#9-przydatne-linki)
+10. [Autor i licencja](#10-autor-i-licencja)
 
 ---
 
@@ -321,20 +321,7 @@ NODM_USER=root
 
 ---
 
-## 6. Zabezpieczenie folderu aplikacji
-
-Aby ograniczyć dostęp do folderu `/opt/myopencvapp` tylko dla roota:
-
-W pliku hooka `config/hooks/normal/install-opencvapp.chroot` dodaj na końcu:
-
-```bash
-chmod 700 /opt/myopencvapp
-chown root:root /opt/myopencvapp
-```
-
----
-
-## 7. Budowanie obrazu ISO
+## 6. Budowanie obrazu ISO
 
 Aby zbudować własny obraz ISO Debiana z przygotowaną konfiguracją, uruchom poniższe polecenie w katalogu projektu:
 
@@ -344,7 +331,7 @@ sudo lb build
 
 ---
 
-## 8. Najczęstsze problemy
+## 7. Najczęstsze problemy
 
 > :warning: **Problem:** Okno OpenCV nie otwiera się na pełnym ekranie  
 > **Rozwiązanie:** Upewnij się, że masz zainstalowane `xorg` i środowisko graficzne (`xfce4`).
@@ -354,7 +341,7 @@ sudo lb build
 
 ---
 
-## 9. Struktura katalogów
+## 8. Struktura katalogów
 
 ```
 moj-debian-part3/
@@ -379,7 +366,7 @@ moj-debian-part3/
 
 ---
 
-## 10. Przydatne linki
+## 9. Przydatne linki
 
 - [OpenCV – dokumentacja](https://docs.opencv.org/)
 - [live-build lb_config – dokumentacja konfiguracji](https://manpages.debian.org/unstable/live-build/lb_config.1.en.html)
@@ -388,7 +375,7 @@ moj-debian-part3/
 
 ---
 
-## 11. Autor i licencja
+## 10. Autor i licencja
 
 - Autor: [Sebastian Bartel](https://github.com/SebastianSebastianB)
 - E-mail: umbraos@icloud.com
