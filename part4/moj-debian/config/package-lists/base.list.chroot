@@ -1,11 +1,13 @@
-# Podstawowe pakiety systemowe
+# Podstawowe narzędzia i pakiety systemowe
 sudo
-vim
+ufw
 curl
 wget
-htop
-tree
-systemd
+git
+ifupdown
+wpasupplicant
+firmware-iwlwifi
+isc-dhcp-client
 grub-efi
 
 # Obsługa polskich znaków
@@ -16,11 +18,3 @@ procps
 coreutils
 util-linux
 net-tools
-
-# Sieć
-openssh-server
-network-manager
-ifupdown
-wpasupplicant
-firmware-iwlwifi
-isc-dhcp-client
