@@ -55,7 +55,13 @@ sudo lb config -d bookworm --debian-installer live --archive-areas "main contrib
 
 ### 3.1. Skrypt wyświetlający banner
 
-Utwórz skrypt, który będzie wyświetlał banner z logo i menu:
+Najpierw utwórz folder na skrypt:
+
+```bash
+mkdir -p config/includes.chroot/usr/local/bin
+```
+
+Następnie utwórz skrypt, który będzie wyświetlał banner z logo i menu:
 
 ```bash
 nano config/includes.chroot/usr/local/bin/startup-banner.sh
