@@ -268,11 +268,23 @@ handle_menu() {
                 else
                     echo "Czas działania: $(cat /proc/uptime | cut -d' ' -f1 | awk '{printf "%.0f sekund", $1}')"
                 fi
-                
-                if command -v free >/dev/null 2>&1; then
+                  if command -v free >/dev/null 2>&1; then
                     echo "Użycie pamięci: $(free -h | grep Mem | awk '{print $3"/"$2}' 2>/dev/null || echo 'Niedostępne')"
                 else
-                    echo "Użycie pamięci: $(awk '/MemTotal/ {total=$2} /MemAvailable/ {avail=$2} END {used=total-avail; printf "%.1fMB/%.1fMB", used/1024, total/1024}' /proc/meminfo)"
+                    # Alternatywna metoda bez free - używa /proc/meminfo
+                    echo "Użycie pamięci: $(awk '
+                        /MemTotal/ { total = $2 }
+                        /MemFree/ { free = $2 }
+                        /Buffers/ { buffers = $2 }
+                        /Cached/ { cached = $2 }
+                        END { 
+                            if (total > 0) {
+                                used = total - free - buffers - cached
+                                printf "%.1fMB/%.1fMB", used/1024, total/1024
+                            } else {
+                                print "Niedostępne"
+                            }
+                        }' /proc/meminfo)"
                 fi
                 
                 if command -v df >/dev/null 2>&1; then

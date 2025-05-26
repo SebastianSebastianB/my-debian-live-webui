@@ -1,6 +1,23 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Ustawienie kodowania UTF-8 dla polskich znaków
+# Ustawienie kodowania UTF-8 dla polskich z                if command -v free >/dev/null 2>&1; then
+                    echo "Użycie pamięci: $(free -h | grep Mem | awk '{print $3"/"$2}' 2>/dev/null || echo 'Niedostępne')"
+                else
+                    # Alternatywna metoda bez free - używa /proc/meminfo
+                    echo "Użycie pamięci: $(awk '
+                        /MemTotal/ { total = $2 }
+                        /MemFree/ { free = $2 }
+                        /Buffers/ { buffers = $2 }
+                        /Cached/ { cached = $2 }
+                        END { 
+                            if (total > 0) {
+                                used = total - free - buffers - cached
+                                printf "%.1fMB/%.1fMB", used/1024, total/1024
+                            } else {
+                                print "Niedostępne"
+                            }
+                        }' /proc/meminfo)"
+                fi
 export LANG=pl_PL.UTF-8
 export LC_ALL=pl_PL.UTF-8
 
