@@ -159,20 +159,43 @@ Wklej:
 export LANG=pl_PL.UTF-8
 export LC_ALL=pl_PL.UTF-8
 
+# Funkcja pobierania IP z retry
+get_ip_with_retry() {
+    local max_attempts=10
+    local delay=2
+    local ip=""
+    
+    for i in $(seq 1 $max_attempts); do
+        ip=$(ip route get 1.1.1.1 2>/dev/null | awk '/src/ {print $7}' 2>/dev/null)
+        if [ -z "$ip" ]; then
+            ip=$(ip addr show | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}' | cut -d'/' -f1 2>/dev/null)
+        fi
+        if [ -z "$ip" ]; then
+            ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+        fi
+        
+        if [ -n "$ip" ] && [ "$ip" != "127.0.0.1" ]; then
+            echo "$ip"
+            return 0
+        fi
+        
+        # Wyświetl informację o próbie tylko przy pierwszym uruchomieniu
+        if [ $i -eq 1 ]; then
+            echo "Oczekiwanie na konfigurację sieci..." >&2
+        fi
+        
+        sleep $delay
+    done
+    
+    echo "brak połączenia"
+}
+
 # Funkcja wyświetlania bannera
 show_banner() {
     clear
-      # Pobierz aktualny adres IP - alternatywne metody
-    IP=$(ip route get 1.1.1.1 2>/dev/null | awk '/src/ {print $7}' 2>/dev/null)
-    if [ -z "$IP" ]; then
-        IP=$(ip addr show | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}' | cut -d'/' -f1 2>/dev/null)
-    fi
-    if [ -z "$IP" ]; then
-        IP=$(hostname -I 2>/dev/null | awk '{print $1}')
-    fi
-    if [ -z "$IP" ]; then
-        IP="brak połączenia"
-    fi
+    
+    # Pobierz aktualny adres IP z retry
+    IP=$(get_ip_with_retry)
     
     # Wyświetl banner
     echo -e "\e[36m"  # Kolor cyan
@@ -322,8 +345,9 @@ Wklej:
 ```
 [Unit]
 Description=Startup Banner with Menu
-After=network.target mywebui.service
-Wants=network.target
+After=network-online.target mywebui.service
+Wants=network-online.target
+Requires=network-online.target
 
 [Service]
 Type=oneshot
@@ -429,17 +453,34 @@ Wklej:
 #!/bin/bash
 # Skrypt aktualizujący /etc/issue z aktualnym IP
 
-# Pobierz adres IP - alternatywne metody
-IP=$(ip route get 1.1.1.1 2>/dev/null | awk '/src/ {print $7}' 2>/dev/null)
-if [ -z "$IP" ]; then
-    IP=$(ip addr show | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}' | cut -d'/' -f1 2>/dev/null)
-fi
-if [ -z "$IP" ]; then
-    IP=$(hostname -I 2>/dev/null | awk '{print $1}')
-fi
-if [ -z "$IP" ]; then
-    IP="brak IP"
-fi
+# Funkcja pobierania IP z retry
+get_ip_with_retry() {
+    local max_attempts=5
+    local delay=1
+    local ip=""
+    
+    for i in $(seq 1 $max_attempts); do
+        ip=$(ip route get 1.1.1.1 2>/dev/null | awk '/src/ {print $7}' 2>/dev/null)
+        if [ -z "$ip" ]; then
+            ip=$(ip addr show | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}' | cut -d'/' -f1 2>/dev/null)
+        fi
+        if [ -z "$ip" ]; then
+            ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+        fi
+        
+        if [ -n "$ip" ] && [ "$ip" != "127.0.0.1" ]; then
+            echo "$ip"
+            return 0
+        fi
+        
+        sleep $delay
+    done
+    
+    echo "brak IP"
+}
+
+# Pobierz adres IP z retry
+IP=$(get_ip_with_retry)
 
 # Aktualizuj /etc/issue
 cat > /etc/issue << EOF
@@ -469,7 +510,8 @@ Wklej:
 ```
 [Unit]
 Description=Update issue with current IP
-After=network.target
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=oneshot
@@ -555,6 +597,22 @@ qemu-system-x86_64 -cdrom live-image-amd64.hybrid.iso -m 2048 -boot d
 ```
 
 ### 8.2. Typowe problemy i rozwiązania
+
+**Problem: IP wyświetla "brak połączenia" przy starcie**
+```bash
+# Sprawdź czy sieć jest aktywna
+ip addr show
+
+# Sprawdź status usług sieciowych
+systemctl status NetworkManager
+systemctl status networking
+
+# Sprawdź zależności usługi
+systemctl list-dependencies startup-banner.service
+
+# Uruchom banner ręcznie po starcie systemu
+/usr/local/bin/startup-banner.sh
+```
 
 **Problem: Banner nie wyświetla się automatycznie**
 ```bash
