@@ -162,9 +162,17 @@ export LC_ALL=pl_PL.UTF-8
 # Funkcja wyświetlania bannera
 show_banner() {
     clear
-    
-    # Pobierz aktualny adres IP
-    IP=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+' || echo "brak połączenia")
+      # Pobierz aktualny adres IP - alternatywne metody
+    IP=$(ip route get 1.1.1.1 2>/dev/null | awk '/src/ {print $7}' 2>/dev/null)
+    if [ -z "$IP" ]; then
+        IP=$(ip addr show | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}' | cut -d'/' -f1 2>/dev/null)
+    fi
+    if [ -z "$IP" ]; then
+        IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+    fi
+    if [ -z "$IP" ]; then
+        IP="brak połączenia"
+    fi
     
     # Wyświetl banner
     echo -e "\e[36m"  # Kolor cyan
@@ -181,7 +189,8 @@ EOF
     echo -e "\e[33mWersja: 1.0 - Twoja spersonalizowana dystrybucja Debian\e[0m"
     echo -e "\e[32mWebUI dostępne pod adresem: http://${IP}:8080\e[0m"
     echo ""
-    echo -e "\e[1;34m" # Bold niebieski    echo "╔════════════════════════════════════╗"
+    echo -e "\e[1;34m" # Bold niebieski    
+    echo "╔════════════════════════════════════╗"
     echo "║               MENU                 ║"
     echo "╠════════════════════════════════════╣"
     echo "║  1) Ustawienia                     ║"
@@ -420,8 +429,17 @@ Wklej:
 #!/bin/bash
 # Skrypt aktualizujący /etc/issue z aktualnym IP
 
-# Pobierz adres IP
-IP=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+' 2>/dev/null || echo "brak IP")
+# Pobierz adres IP - alternatywne metody
+IP=$(ip route get 1.1.1.1 2>/dev/null | awk '/src/ {print $7}' 2>/dev/null)
+if [ -z "$IP" ]; then
+    IP=$(ip addr show | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}' | cut -d'/' -f1 2>/dev/null)
+fi
+if [ -z "$IP" ]; then
+    IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+fi
+if [ -z "$IP" ]; then
+    IP="brak IP"
+fi
 
 # Aktualizuj /etc/issue
 cat > /etc/issue << EOF
