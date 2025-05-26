@@ -1,6 +1,4 @@
 #!/bin/sh
-# Instalacja WebUI (skopiowane z działającego Part2)
-
 python3 -m venv /opt/mywebui/venv
 /opt/mywebui/venv/bin/pip install -r /opt/mywebui/requirements.txt
 chmod 700 /opt/mywebui

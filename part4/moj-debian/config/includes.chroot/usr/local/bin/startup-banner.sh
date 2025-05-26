@@ -7,10 +7,8 @@ export LC_ALL=pl_PL.UTF-8
 # Funkcja wyświetlania bannera
 show_banner() {
     clear
-    
     # Pobierz aktualny adres IP
-    IP=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+' || echo "brak połączenia")
-    
+    IP=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \\K\\S+' || echo "brak połączenia")
     # Wyświetl banner
     echo -e "\e[36m"  # Kolor cyan
     cat << "EOF"
@@ -22,11 +20,10 @@ show_banner() {
 ╚═╝     ╚═╝ ╚═════╝  ╚════╝ ╚═════╝ ╚══════╝╚═════╝ ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝
 EOF
     echo -e "\e[0m"  # Reset koloru
-    
     echo -e "\e[33mWersja: 1.0 - Twoja spersonalizowana dystrybucja Debian\e[0m"
     echo -e "\e[32mWebUI dostępne pod adresem: http://${IP}:8080\e[0m"
     echo ""
-    echo -e "\e[1;34m" # Bold niebieski
+    echo -e "\e[1;34m"
     echo "╔════════════════════════════════════╗"
     echo "║               MENU                 ║"
     echo "╠════════════════════════════════════╣"
@@ -44,7 +41,6 @@ handle_menu() {
     while true; do
         echo -n -e "\e[1;36mWybierz opcję (1-5): \e[0m"
         read choice
-        
         case $choice in
             1)
                 echo -e "\e[33m=== USTAWIENIA SYSTEMU ===\e[0m"
@@ -76,26 +72,21 @@ handle_menu() {
             4)
                 echo -e "\e[33m=== INFORMACJE O SYSTEMIE ===\e[0m"
                 echo "Hostname: $(hostname)"
-                
-                # Sprawdź dostępność komend systemowych
                 if command -v uptime >/dev/null 2>&1; then
                     echo "Czas działania: $(uptime -p 2>/dev/null || uptime | cut -d',' -f1 | cut -d' ' -f3-)"
                 else
-                    echo "Czas działania: $(cat /proc/uptime | cut -d' ' -f1 | awk '{printf "%.0f sekund", $1}')"
+                    echo "Czas działania: $(cat /proc/uptime | cut -d' ' -f1 | awk '{printf \"%.0f sekund\", $1}')"
                 fi
-                
                 if command -v free >/dev/null 2>&1; then
                     echo "Użycie pamięci: $(free -h | grep Mem | awk '{print $3"/"$2}' 2>/dev/null || echo 'Niedostępne')"
                 else
-                    echo "Użycie pamięci: $(awk '/MemTotal/ {total=$2} /MemAvailable/ {avail=$2} END {used=total-avail; printf "%.1fMB/%.1fMB", used/1024, total/1024}' /proc/meminfo)"
+                    echo "Użycie pamięci: $(awk '/MemTotal/ {total=$2} /MemAvailable/ {avail=$2} END {used=total-avail; printf \"%.1fMB/%.1fMB\", used/1024, total/1024}' /proc/meminfo)"
                 fi
-                
                 if command -v df >/dev/null 2>&1; then
                     echo "Użycie dysku: $(df -h / 2>/dev/null | tail -1 | awk '{print $3"/"$2" ("$5")"}' || echo 'Niedostępne')"
                 else
                     echo "Użycie dysku: Niedostępne"
                 fi
-                
                 if command -v systemctl >/dev/null 2>&1; then
                     echo "Aktywne usługi: $(systemctl list-units --type=service --state=running 2>/dev/null | wc -l || echo 'Niedostępne')"
                 else

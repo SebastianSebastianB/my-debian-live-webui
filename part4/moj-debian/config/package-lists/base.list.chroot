@@ -1,4 +1,4 @@
-# Podstawowe narzędzia i pakiety systemowe
+# Podstawowe narzędzia i pakiety systemowe (konsola)
 sudo
 ufw
 curl
@@ -9,12 +9,3 @@ wpasupplicant
 firmware-iwlwifi
 isc-dhcp-client
 grub-efi
-
-# Obsługa polskich znaków
-locales
-console-setup
-keyboard-configuration
-procps
-coreutils
-util-linux
-net-tools

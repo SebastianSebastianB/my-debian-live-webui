@@ -1,9 +1,11 @@
 [Unit]
 Description=My WebUI
-After=network.target
 
 [Service]
-# Uruchom aplikację WebUI z virtualenv (jak w działającym Part2)
+# Uruchamia aplikację WebUI bezpośrednio z systemowego Pythona
+# ExecStart=/usr/bin/python3 /opt/mywebui/app.py
+
+# Uruchom aplikację WebUI z virtualenv
 ExecStart=/opt/mywebui/venv/bin/python /opt/mywebui/app.py
 WorkingDirectory=/opt/mywebui
 Restart=always

@@ -1,4 +1,2 @@
 #!/bin/sh
-# Aktywacja usługi WebUI
-
 systemctl enable mywebui.service

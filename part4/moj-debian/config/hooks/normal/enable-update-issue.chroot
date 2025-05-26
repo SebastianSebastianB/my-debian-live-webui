@@ -1,5 +1,3 @@
 #!/bin/sh
-# Aktywacja usługi aktualizującej IP w /etc/issue
-
 chmod +x /usr/local/bin/update-issue.sh
 systemctl enable update-issue.service
