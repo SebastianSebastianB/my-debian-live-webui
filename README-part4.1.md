@@ -254,21 +254,22 @@ handle_menu() {
             2)
                 echo -e "\e[32mPrzechodzenie do logowania...\e[0m"
                 break
-                ;;
+                ;;            
             3)
                 echo -e "\e[31mZamykanie systemu...\e[0m"
                 sudo shutdown -h now
-                ;;            4)
+                ;;
+            4)
                 echo -e "\e[33m=== INFORMACJE O SYSTEMIE ===\e[0m"
-                echo "Hostname: $(hostname)"
-                
+                echo "Hostname: $(hostname)"                
                 # Sprawdź dostępność komend systemowych
                 if command -v uptime >/dev/null 2>&1; then
                     echo "Czas działania: $(uptime -p 2>/dev/null || uptime | cut -d',' -f1 | cut -d' ' -f3-)"
                 else
                     echo "Czas działania: $(cat /proc/uptime | cut -d' ' -f1 | awk '{printf "%.0f sekund", $1}')"
                 fi
-                  if command -v free >/dev/null 2>&1; then
+                
+                if command -v free >/dev/null 2>&1; then
                     echo "Użycie pamięci: $(free -h | grep Mem | awk '{print $3"/"$2}' 2>/dev/null || echo 'Niedostępne')"
                 else
                     # Alternatywna metoda bez free - używa /proc/meminfo
@@ -666,6 +667,39 @@ journalctl -u mywebui.service
 **Problem: Brak komend systemowych (uptime, free)**
 - Upewnij się, że pakiety `procps`, `coreutils`, `util-linux` są w `base.list.chroot`
 - Skrypt automatycznie używa alternatywnych metod jeśli komendy nie są dostępne
+
+**Problem: Użycie pamięci wyświetla "Niedostępne" lub nieprawidłowe wartości**
+```bash
+# Sprawdź dostępność komend pamięci
+command -v free && echo "free dostępne" || echo "free niedostępne"
+
+# Sprawdź dostępność /proc/meminfo
+cat /proc/meminfo | head -10
+
+# Testuj ręcznie kod alternatywny
+awk '
+    /MemTotal/ { total = $2 }
+    /MemFree/ { free = $2 }
+    /Buffers/ { buffers = $2 }
+    /Cached/ { cached = $2 }
+    END { 
+        if (total > 0) {
+            used = total - free - buffers - cached
+            printf "%.1fMB/%.1fMB", used/1024, total/1024
+        } else {
+            print "Niedostępne"
+        }
+    }' /proc/meminfo
+
+# Sprawdź czy pakiet procps jest zainstalowany
+dpkg -l | grep procps
+```
+
+**Wyjaśnienie obsługi pamięci:**
+- Skrypt używa `free -h` jako pierwszą opcję (najłatwiejsza do odczytu)
+- Jeśli `free` nie jest dostępne, używa alternatywnej metody z `/proc/meminfo`
+- Alternatywna metoda oblicza użytą pamięć jako: `MemTotal - MemFree - Buffers - Cached`
+- W systemach Live (RAM-disk) wyświetlane są wartości użycia pamięci RAM
 
 ### 8.3. Debugowanie skryptu bannera
 
