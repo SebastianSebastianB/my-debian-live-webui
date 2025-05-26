@@ -1,9 +1,7 @@
 #!/bin/sh
-# Instalacja WebUI
+# Instalacja WebUI (skopiowane z działającego Part2)
 
-cd /opt/mywebui
-pip3 install -r requirements.txt
-
-# Nadanie uprawnień
-chmod +x /opt/mywebui/app.py
-chown -R root:root /opt/mywebui
+python3 -m venv /opt/mywebui/venv
+/opt/mywebui/venv/bin/pip install -r /opt/mywebui/requirements.txt
+chmod 700 /opt/mywebui
+chown root:root /opt/mywebui
