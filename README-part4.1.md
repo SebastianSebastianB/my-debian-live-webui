@@ -9,13 +9,15 @@ Banner wyświetla dynamicznie odczytywany adres IP WebUI oraz oferuje podstawowe
 
 1. [Wymagania](#1-wymagania)
 2. [Konfiguracja projektu](#2-konfiguracja-projektu)
-3. [Tworzenie bannera z menu](#3-tworzenie-bannera-z-menu)
-4. [Konfiguracja automatycznego uruchamiania](#4-konfiguracja-automatycznego-uruchamiania)
-5. [Personalizacja systemu](#5-personalizacja-systemu)
-6. [Budowanie obrazu ISO](#6-budowanie-obrazu-iso)
-7. [Struktura katalogów](#7-struktura-katalogów)
-8. [Przydatne linki](#8-przydatne-linki)
-9. [Autor i licencja](#9-autor-i-licencja)
+3. [Dodanie obsługi polskich znaków](#3-dodanie-obsługi-polskich-znaków)
+4. [Tworzenie bannera z menu](#4-tworzenie-bannera-z-menu)
+5. [Konfiguracja automatycznego uruchamiania](#5-konfiguracja-automatycznego-uruchamiania)
+6. [Personalizacja systemu](#6-personalizacja-systemu)
+7. [Budowanie obrazu ISO](#7-budowanie-obrazu-iso)
+8. [Testowanie i rozwiązywanie problemów](#8-testowanie-i-rozwiązywanie-problemów)
+9. [Struktura katalogów](#9-struktura-katalogów)
+10. [Przydatne linki](#10-przydatne-linki)
+11. [Autor i licencja](#11-autor-i-licencja)
 
 ---
 
@@ -51,9 +53,90 @@ sudo lb config -d bookworm --debian-installer live --archive-areas "main contrib
 
 ---
 
-## 3. Tworzenie bannera z menu
+## 3. Dodanie obsługi polskich znaków
 
-### 3.1. Skrypt wyświetlający banner
+### 3.1. Pakiety lokalizacji
+
+Dodaj pakiety obsługujące polskie znaki do listy pakietów:
+
+```bash
+nano config/package-lists/base.list.chroot
+```
+
+Dodaj na końcu pliku:
+
+```
+# Obsługa polskich znaków
+locales
+console-setup
+keyboard-configuration
+procps
+coreutils
+util-linux
+net-tools
+```
+
+**Objaśnienie pakietów:**
+- `locales` - obsługa języków i kodowań (UTF-8, polskie znaki)
+- `console-setup` - konfiguracja konsoli (czcionki, klawiatura)  
+- `keyboard-configuration` - ustawienia klawiatury (polskie znaki)
+- `procps` - narzędzia systemowe (`free`, `ps`, `top`, `uptime`)
+- `coreutils` - podstawowe narzędzia GNU (`ls`, `cat`, `grep`, `awk`)
+- `util-linux` - narzędzia systemowe (`mount`, `df`, `lsblk`)
+- `net-tools` - narzędzia sieciowe (`ifconfig`, `netstat`)
+
+### 3.2. Konfiguracja locale
+
+Utwórz hook konfigurujący polskie locale:
+
+```bash
+mkdir -p config/hooks/normal/
+nano config/hooks/normal/configure-locale.chroot
+```
+
+Wklej:
+
+```bash
+#!/bin/sh
+# Konfiguracja polskich locale
+
+# Generuj locale pl_PL.UTF-8
+echo "pl_PL.UTF-8 UTF-8" >> /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+locale-gen
+
+# Ustaw domyślne locale
+echo "LANG=pl_PL.UTF-8" > /etc/default/locale
+echo "LC_ALL=pl_PL.UTF-8" >> /etc/default/locale
+
+# Konfiguracja konsoli dla polskich znaków
+echo "CHARMAP=UTF-8" > /etc/default/console-setup
+echo "CODESET=guess" >> /etc/default/console-setup
+echo "FONTFACE=Fixed" >> /etc/default/console-setup
+echo "FONTSIZE=16" >> /etc/default/console-setup
+
+# Konfiguracja klawiatury polskiej
+echo "XKBMODEL=pc105" > /etc/default/keyboard
+echo "XKBLAYOUT=pl" >> /etc/default/keyboard
+echo "XKBVARIANT=" >> /etc/default/keyboard
+echo "XKBOPTIONS=" >> /etc/default/keyboard
+
+# Ustaw locale dla bieżącej sesji
+export LANG=pl_PL.UTF-8
+export LC_ALL=pl_PL.UTF-8
+```
+
+Nadaj uprawnienia:
+
+```bash
+chmod +x config/hooks/normal/configure-locale.chroot
+```
+
+---
+
+## 4. Tworzenie bannera z menu
+
+### 4.1. Skrypt wyświetlający banner
 
 Najpierw utwórz folder na skrypt:
 
@@ -71,6 +154,10 @@ Wklej:
 
 ```bash
 #!/bin/bash
+# -*- coding: utf-8 -*-
+# Ustawienie kodowania UTF-8 dla polskich znaków
+export LANG=pl_PL.UTF-8
+export LC_ALL=pl_PL.UTF-8
 
 # Funkcja wyświetlania bannera
 show_banner() {
@@ -94,13 +181,12 @@ EOF
     echo -e "\e[33mWersja: 1.0 - Twoja spersonalizowana dystrybucja Debian\e[0m"
     echo -e "\e[32mWebUI dostępne pod adresem: http://${IP}:8080\e[0m"
     echo ""
-    echo -e "\e[1;34m" # Bold niebieski
-    echo "╔════════════════════════════════════╗"
+    echo -e "\e[1;34m" # Bold niebieski    echo "╔════════════════════════════════════╗"
     echo "║               MENU                 ║"
     echo "╠════════════════════════════════════╣"
     echo "║  1) Ustawienia                     ║"
-    echo "║  2) Login                          ║"
-    echo "║  3) Exit                           ║"
+    echo "║  2) Logowanie                      ║"
+    echo "║  3) Wyjście                        ║"
     echo "║  4) Informacje o systemie          ║"
     echo "║  5) Status usług                   ║"
     echo "╚════════════════════════════════════╝"
@@ -140,14 +226,34 @@ handle_menu() {
             3)
                 echo -e "\e[31mZamykanie systemu...\e[0m"
                 sudo shutdown -h now
-                ;;
-            4)
+                ;;            4)
                 echo -e "\e[33m=== INFORMACJE O SYSTEMIE ===\e[0m"
                 echo "Hostname: $(hostname)"
-                echo "Czas działania: $(uptime -p)"
-                echo "Użycie pamięci: $(free -h | grep Mem | awk '{print $3"/"$2}')"
-                echo "Użycie dysku: $(df -h / | tail -1 | awk '{print $3"/"$2" ("$5")"}')"
-                echo "Aktywne usługi: $(systemctl list-units --type=service --state=running | wc -l)"
+                
+                # Sprawdź dostępność komend systemowych
+                if command -v uptime >/dev/null 2>&1; then
+                    echo "Czas działania: $(uptime -p 2>/dev/null || uptime | cut -d',' -f1 | cut -d' ' -f3-)"
+                else
+                    echo "Czas działania: $(cat /proc/uptime | cut -d' ' -f1 | awk '{printf "%.0f sekund", $1}')"
+                fi
+                
+                if command -v free >/dev/null 2>&1; then
+                    echo "Użycie pamięci: $(free -h | grep Mem | awk '{print $3"/"$2}' 2>/dev/null || echo 'Niedostępne')"
+                else
+                    echo "Użycie pamięci: $(awk '/MemTotal/ {total=$2} /MemAvailable/ {avail=$2} END {used=total-avail; printf "%.1fMB/%.1fMB", used/1024, total/1024}' /proc/meminfo)"
+                fi
+                
+                if command -v df >/dev/null 2>&1; then
+                    echo "Użycie dysku: $(df -h / 2>/dev/null | tail -1 | awk '{print $3"/"$2" ("$5")"}' || echo 'Niedostępne')"
+                else
+                    echo "Użycie dysku: Niedostępne"
+                fi
+                
+                if command -v systemctl >/dev/null 2>&1; then
+                    echo "Aktywne usługi: $(systemctl list-units --type=service --state=running 2>/dev/null | wc -l || echo 'Niedostępne')"
+                else
+                    echo "Aktywne usługi: Niedostępne"
+                fi
                 echo ""
                 echo "Naciśnij Enter aby kontynuować..."
                 read
@@ -184,7 +290,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 fi
 ```
 
-### 3.2. Nadanie uprawnień
+### 4.2. Nadanie uprawnień
 
 ```bash
 chmod +x config/includes.chroot/usr/local/bin/startup-banner.sh
@@ -192,9 +298,9 @@ chmod +x config/includes.chroot/usr/local/bin/startup-banner.sh
 
 ---
 
-## 4. Konfiguracja automatycznego uruchamiania
+## 5. Konfiguracja automatycznego uruchamiania
 
-### 4.1. Usługa systemd
+### 5.1. Usługa systemd
 
 Utwórz usługę, która będzie uruchamiała banner przy starcie:
 
@@ -223,7 +329,7 @@ User=root
 WantedBy=multi-user.target
 ```
 
-### 4.2. Hook aktywujący usługę
+### 5.2. Hook aktywujący usługę
 
 ```bash
 nano config/hooks/normal/enable-startup-banner.chroot
@@ -247,9 +353,9 @@ chmod +x config/hooks/normal/enable-startup-banner.chroot
 
 ---
 
-## 5. Personalizacja systemu
+## 6. Personalizacja systemu
 
-### 5.1. Konfiguracja informacji o systemie
+### 6.1. Konfiguracja informacji o systemie
 
 ```bash
 nano config/includes.chroot/etc/os-release
@@ -269,7 +375,7 @@ SUPPORT_URL="https://github.com/SebastianSebastianB/my-debian-live-webui/issues"
 BUG_REPORT_URL="https://github.com/SebastianSebastianB/my-debian-live-webui/issues"
 ```
 
-### 5.2. Banner konsoli (plik issue)
+### 6.2. Banner konsoli (plik issue)
 
 ```bash
 nano config/includes.chroot/etc/issue
@@ -300,7 +406,7 @@ Dla dostępu do WebUI sprawdź adres IP: ip a
 
 ---
 
-### 5.3. Dynamiczne aktualizowanie adresu IP w issue
+### 6.3. Dynamiczne aktualizowanie adresu IP w issue
 
 Aby automatycznie aktualizować adres IP w bannerze, utwórz skrypt:
 
@@ -334,7 +440,7 @@ WebUI dostępne pod adresem: http://${IP}:8080
 EOF
 ```
 
-### 5.4. Usługa aktualizująca IP
+### 6.4. Usługa aktualizująca IP
 
 ```bash
 nano config/includes.chroot/etc/systemd/system/update-issue.service
@@ -355,7 +461,7 @@ ExecStart=/usr/local/bin/update-issue.sh
 WantedBy=multi-user.target
 ```
 
-### 5.5. Hook aktywujący aktualizację IP
+### 6.5. Hook aktywujący aktualizację IP
 
 ```bash
 nano config/hooks/normal/enable-update-issue.chroot
@@ -377,7 +483,7 @@ chmod +x config/hooks/normal/enable-update-issue.chroot
 
 ---
 
-## 6. Budowanie obrazu ISO
+## 7. Budowanie obrazu ISO
 
 Aby zbudować własny obraz ISO Debiana z przygotowaną konfiguracją, uruchom poniższe polecenie w katalogu projektu:
 
@@ -411,7 +517,91 @@ Po uruchomieniu systemu:
 
 ---
 
-## 7. Struktura katalogów
+## 8. Testowanie i rozwiązywanie problemów
+
+### 8.1. Testowanie w maszynie wirtualnej
+
+Najlepszym sposobem testowania jest użycie VirtualBox lub QEMU:
+
+**VirtualBox:**
+```bash
+# Utwórz nową maszynę wirtualną
+# Wybierz: Type: Linux, Version: Debian (64-bit)
+# RAM: minimum 1GB (zalecane 2GB)
+# Uruchom z utworzonego pliku ISO
+```
+
+**QEMU (szybkie testowanie):**
+```bash
+qemu-system-x86_64 -cdrom live-image-amd64.hybrid.iso -m 2048 -boot d
+```
+
+### 8.2. Typowe problemy i rozwiązania
+
+**Problem: Banner nie wyświetla się automatycznie**
+```bash
+# Sprawdź status usługi
+systemctl status startup-banner.service
+
+# Sprawdź logi
+journalctl -u startup-banner.service
+
+# Uruchom ręcznie
+/usr/local/bin/startup-banner.sh
+```
+
+**Problem: Polskie znaki nie wyświetlają się poprawnie**
+```bash
+# Sprawdź locale
+locale
+
+# Sprawdź konfigurację konsoli
+cat /etc/default/console-setup
+cat /etc/default/keyboard
+
+# Przeładuj konfigurację
+setupcon
+```
+
+**Problem: WebUI nie działa**
+```bash
+# Sprawdź status usługi
+systemctl status mywebui.service
+
+# Sprawdź port
+netstat -tlnp | grep :8080
+
+# Sprawdź logi
+journalctl -u mywebui.service
+```
+
+**Problem: Brak komend systemowych (uptime, free)**
+- Upewnij się, że pakiety `procps`, `coreutils`, `util-linux` są w `base.list.chroot`
+- Skrypt automatycznie używa alternatywnych metod jeśli komendy nie są dostępne
+
+### 8.3. Debugowanie skryptu bannera
+
+Aby debugować skrypt, dodaj na początku:
+```bash
+#!/bin/bash
+set -x  # Włącz tryb debug
+# reszta skryptu...
+```
+
+### 8.4. Ręczne uruchomienie
+
+Jeśli automatyczne uruchamianie nie działa:
+```bash
+# Uruchom banner ręcznie
+sudo /usr/local/bin/startup-banner.sh
+
+# Lub dodaj do ~/.bashrc użytkownika
+echo "/usr/local/bin/startup-banner.sh" >> ~/.bashrc
+```
+
+---
+
+## 9. Struktura katalogów
 
 ```
 moj-debian-part4.1/
@@ -448,7 +638,7 @@ moj-debian-part4.1/
 
 ---
 
-## 8. Przydatne linki
+## 10. Przydatne linki
 
 - [systemd.service – dokumentacja](https://www.freedesktop.org/software/systemd/man/systemd.service.html)
 - [TTY i getty w systemd](https://wiki.archlinux.org/title/Getty)
@@ -458,7 +648,7 @@ moj-debian-part4.1/
 
 ---
 
-## 9. Autor i licencja
+## 11. Autor i licencja
 
 - Autor: [Sebastian Bartel](https://github.com/SebastianSebastianB)
 - E-mail: umbraos@icloud.com

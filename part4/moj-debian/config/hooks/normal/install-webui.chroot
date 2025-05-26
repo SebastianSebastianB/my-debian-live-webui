@@ -1,0 +1,9 @@
+#!/bin/sh
+# Instalacja WebUI
+
+cd /opt/mywebui
+pip3 install -r requirements.txt
+
+# Nadanie uprawnień
+chmod +x /opt/mywebui/app.py
+chown -R root:root /opt/mywebui

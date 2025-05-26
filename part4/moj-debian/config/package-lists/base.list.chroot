@@ -1,0 +1,26 @@
+# Podstawowe pakiety systemowe
+sudo
+vim
+curl
+wget
+htop
+tree
+systemd
+
+# Obsługa polskich znaków
+locales
+console-setup
+keyboard-configuration
+procps
+coreutils
+util-linux
+net-tools
+
+# Sieć
+openssh-server
+network-manager
+
+# Python dla WebUI (kopiowane z part2)
+python3
+python3-pip
+python3-venv

@@ -1,0 +1,16 @@
+[Unit]
+Description=Startup Banner with Menu
+After=network.target mywebui.service
+Wants=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/startup-banner.sh
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/tty1
+RemainAfterExit=yes
+User=root
+
+[Install]
+WantedBy=multi-user.target
