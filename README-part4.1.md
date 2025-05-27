@@ -217,9 +217,9 @@ EOF
     echo -e "\e[1;34m" # Bold niebieski    
     echo "╔════════════════════════════════════╗"
     echo "║               MENU                 ║"
-    echo "╠════════════════════════════════════╣"
+    echo "╠════════════════════════════════════╣"    
     echo "║  1) Ustawienia                     ║"
-    echo "║  2) Logowanie                      ║"
+    echo "║  2) Logowanie na Terminal          ║"
     echo "║  3) Wyjście                        ║"
     echo "║  4) Informacje o systemie          ║"
     echo "║  5) Status usług                   ║"
@@ -252,10 +252,11 @@ handle_menu() {
                         ;;
                     4) show_banner; handle_menu; return ;;
                 esac
-                ;;
-            2)
-                echo -e "\e[32mPrzechodzenie do logowania...\e[0m"
-                break
+                ;;            2)
+                echo -e "\e[32mPrzechodzenie do terminala Debian...\e[0m"
+                echo "Uruchamianie powłoki bash. Wpisz 'exit' aby wrócić do menu."
+                echo ""
+                exec /bin/bash
                 ;;            
             3)
                 echo -e "\e[31mZamykanie systemu...\e[0m"
