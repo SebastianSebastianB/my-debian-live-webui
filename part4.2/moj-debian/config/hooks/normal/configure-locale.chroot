@@ -1,0 +1,27 @@
+#!/bin/sh
+# Konfiguracja polskich locale
+
+# Generuj locale pl_PL.UTF-8
+echo "pl_PL.UTF-8 UTF-8" >> /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+locale-gen
+
+# Ustaw domyślne locale
+echo "LANG=pl_PL.UTF-8" > /etc/default/locale
+echo "LC_ALL=pl_PL.UTF-8" >> /etc/default/locale
+
+# Konfiguracja konsoli dla polskich znaków
+echo "CHARMAP=UTF-8" > /etc/default/console-setup
+echo "CODESET=guess" >> /etc/default/console-setup
+echo "FONTFACE=Fixed" >> /etc/default/console-setup
+echo "FONTSIZE=16" >> /etc/default/console-setup
+
+# Konfiguracja klawiatury polskiej
+echo "XKBMODEL=pc105" > /etc/default/keyboard
+echo "XKBLAYOUT=pl" >> /etc/default/keyboard
+echo "XKBVARIANT=" >> /etc/default/keyboard
+echo "XKBOPTIONS=" >> /etc/default/keyboard
+
+# Ustaw locale dla bieżącej sesji
+export LANG=pl_PL.UTF-8
+export LC_ALL=pl_PL.UTF-8

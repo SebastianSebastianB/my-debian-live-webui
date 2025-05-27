@@ -1,0 +1,9 @@
+PRETTY_NAME="MojDebian GNU/Linux"
+NAME="MojDebian"
+VERSION_ID="1.0"
+VERSION="1.0 (Custom)"
+ID=mojdebian
+ID_LIKE=debian
+HOME_URL="https://github.com/SebastianSebastianB/my-debian-live-webui"
+SUPPORT_URL="https://github.com/SebastianSebastianB/my-debian-live-webui/issues"
+BUG_REPORT_URL="https://github.com/SebastianSebastianB/my-debian-live-webui/issues"

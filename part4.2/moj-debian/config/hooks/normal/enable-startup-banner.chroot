@@ -1,0 +1,4 @@
+#!/bin/sh
+systemctl enable startup-banner.service
+# Wyłącz getty na tty1 aby nie kolidowało
+systemctl disable getty@tty1.service
