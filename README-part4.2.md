@@ -160,9 +160,9 @@ EOF
     echo ""
 }
 
-main_loop() {
-    while true; do
-        show_banner        echo -e "$CYAN Wybierz opcję (1-8): $NC"
+main_loop() {    while true; do
+        show_banner
+        echo -e "$CYAN Wybierz opcję (1-8): $NC"
         echo -e "\e[1;34m" # Bold niebieski    
         echo "╔════════════════════════════════════╗"
         echo "║               MENU                 ║"
@@ -177,7 +177,8 @@ main_loop() {
         echo "║  8) Powrót do menu                 ║"
         echo "╚════════════════════════════════════╝"
         echo -e "\e[0m"
-        read choice        case $choice in
+        read choice
+        case $choice in
             1) # Ustawienia systemu
                 clear
                 echo -e "$YELLOW ═══ USTAWIENIA SYSTEMU ═══ $NC"
@@ -187,10 +188,18 @@ main_loop() {
                 echo "4) Powrót do menu głównego"
                 read -p "Wybierz opcję: " sys_choice
                 case $sys_choice in
-                    1) passwd ;;
-                    2) nmtui ;;
-                    3) dpkg-reconfigure tzdata ;;
-                    4) continue ;;
+                    1) # Zmiana hasła użytkownika
+                        passwd
+                        ;;
+                    2) # Konfiguracja sieci
+                        nmtui
+                        ;;
+                    3) # Timezone/Strefa czasowa
+                        dpkg-reconfigure tzdata
+                        ;;
+                    4) # Powrót do menu głównego
+                        continue
+                        ;;
                 esac
                 read -p "Naciśnij ENTER aby kontynuować..."
                 ;;
@@ -251,15 +260,27 @@ main_loop() {
                 echo "4) Powrót do menu głównego"
                 read -p "Wybierz opcję: " log_choice
                 case $log_choice in
-                    1) journalctl -n 50 --no-pager ;;
-                    2) journalctl -u mywebui.service -n 20 --no-pager ;;
-                    3) journalctl -b --no-pager ;;
-                    4) continue ;;
+                    1) # Ostatnie logi systemowe
+                        journalctl -n 50 --no-pager
+                        ;;
+                    2) # Logi serwisu WebUI
+                        journalctl -u mywebui.service -n 20 --no-pager
+                        ;;
+                    3) # Logi boot
+                        journalctl -b --no-pager
+                        ;;
+                    4) # Powrót do menu głównego
+                        continue
+                        ;;
                 esac
                 read -p "Naciśnij ENTER aby kontynuować..."
                 ;;
-            8) continue ;;
-            *) echo "Nieprawidłowa opcja!" ;;
+            8) # Wyjście z menu
+                break
+                ;;
+            *) # Nieprawidłowa opcja
+                echo "Nieprawidłowa opcja!"
+                ;;
         esac
     done
 }
