@@ -14,8 +14,8 @@ Banner wyświetla dynamicznie odczytywany adres IP WebUI oraz oferuje podstawowe
 5. [Konfiguracja automatycznego uruchamiania](#5-konfiguracja-automatycznego-uruchamiania)
 6. [Personalizacja systemu](#6-personalizacja-systemu)
 7. [Budowanie obrazu ISO](#7-budowanie-obrazu-iso)
-8. [Testowanie i rozwiązywanie problemów](#8-testowanie-i-rozwiązywanie-problemów)
-9. [Struktura katalogów](#9-struktura-katalogów)
+8. [Efekt końcowy](#8-efekt-koncowy)
+9. [Struktura katalogów](#9-struktura-katalogow)
 10. [Przydatne linki](#10-przydatne-linki)
 11. [Autor i licencja](#11-autor-i-licencja)
 
@@ -57,16 +57,28 @@ sudo lb config -d bookworm --debian-installer live --archive-areas "main contrib
 
 ### 3.1. Pakiety lokalizacji
 
-Dodaj pakiety obsługujące polskie znaki do listy pakietów:
+Dodaj pakiety do dwóch plików list pakietów:
 
-```bash
-nano config/package-lists/base.list.chroot
-```
-
-Dodaj na końcu pliku:
+#### config/package-lists/base.list.chroot
 
 ```
-# Obsługa polskich znaków
+# Podstawowe narzędzia i pakiety systemowe (konsola)
+sudo
+ufw
+curl
+wget
+git
+ifupdown
+wpasupplicant
+firmware-iwlwifi
+isc-dhcp-client
+grub-efi
+```
+
+#### config/package-lists/utils.list.chroot
+
+```
+# Obsługa polskich znaków i narzędzia systemowe
 locales
 console-setup
 keyboard-configuration
@@ -79,7 +91,7 @@ pciutils
 
 **Objaśnienie pakietów:**
 - `locales` - obsługa języków i kodowań (UTF-8, polskie znaki)
-- `console-setup` - konfiguracja konsoli (czcionki, klawiatura)  
+- `console-setup` - konfiguracja konsoli (czcionki, klawiatura)
 - `keyboard-configuration` - ustawienia klawiatury (polskie znaki)
 - `procps` - narzędzia systemowe (`free`, `ps`, `top`, `uptime`)
 - `coreutils` - podstawowe narzędzia GNU (`ls`, `cat`, `grep`, `awk`)
@@ -596,7 +608,7 @@ Ten plik możesz:
 
 ---
 
-### Efekt końcowy
+## 8. Efekt końcowy
 
 Po uruchomieniu systemu:
 
@@ -608,143 +620,6 @@ Po uruchomieniu systemu:
    - Wyłączenie systemu (Exit)
    - Informacje o systemie (użycie pamięci, dysku, uptime)
    - Status usług (WebUI, NetworkManager)
-
----
-
-## 8. Testowanie i rozwiązywanie problemów
-
-### 8.1. Testowanie w maszynie wirtualnej
-
-Najlepszym sposobem testowania jest użycie VirtualBox lub QEMU:
-
-**VirtualBox:**
-```bash
-# Utwórz nową maszynę wirtualną
-# Wybierz: Type: Linux, Version: Debian (64-bit)
-# RAM: minimum 1GB (zalecane 2GB)
-# Uruchom z utworzonego pliku ISO
-```
-
-**QEMU (szybkie testowanie):**
-```bash
-qemu-system-x86_64 -cdrom live-image-amd64.hybrid.iso -m 2048 -boot d
-```
-
-### 8.2. Typowe problemy i rozwiązania
-
-**Problem: IP wyświetla "brak połączenia" przy starcie**
-```bash
-# Sprawdź czy sieć jest aktywna
-ip addr show
-
-# Sprawdź status usług sieciowych
-systemctl status NetworkManager
-systemctl status networking
-
-# Sprawdź zależności usługi
-systemctl list-dependencies startup-banner.service
-
-# Uruchom banner ręcznie po starcie systemu
-/usr/local/bin/startup-banner.sh
-```
-
-**Problem: Banner nie wyświetla się automatycznie**
-```bash
-# Sprawdź status usługi
-systemctl status startup-banner.service
-
-# Sprawdź logi
-journalctl -u startup-banner.service
-
-# Uruchom ręcznie
-/usr/local/bin/startup-banner.sh
-```
-
-**Problem: Polskie znaki nie wyświetlają się poprawnie**
-```bash
-# Sprawdź locale
-locale
-
-# Sprawdź konfigurację konsoli
-cat /etc/default/console-setup
-cat /etc/default/keyboard
-
-# Przeładuj konfigurację
-setupcon
-```
-
-**Problem: WebUI nie działa**
-```bash
-# Sprawdź status usługi
-systemctl status mywebui.service
-
-# Sprawdź port
-netstat -tlnp | grep :8080
-
-# Sprawdź logi
-journalctl -u mywebui.service
-```
-
-**Problem: Brak komend systemowych (uptime, free, lspci)**
-- Upewnij się, że pakiety `procps`, `coreutils`, `util-linux`, `pciutils` są w `base.list.chroot`
-- `procps` - dla komend `free`, `ps`, `top`, `uptime`
-- `pciutils` - dla komendy `lspci` (wykrywanie kart graficznych)
-
-**Problem: Informacje o systemie wyświetlają "Niedostępne"**
-```bash
-# Sprawdź dostępność komend
-command -v free && echo "free dostępne" || echo "free niedostępne"
-command -v lspci && echo "lspci dostępne" || echo "lspci niedostępne"
-command -v uptime && echo "uptime dostępne" || echo "uptime niedostępne"
-
-# Sprawdź czy pliki systemowe istnieją
-ls -la /proc/cpuinfo /proc/meminfo /proc/uptime
-
-# Testuj ręcznie komendy
-free -h
-lspci | grep -i 'vga\|3d\|display'
-grep 'model name' /proc/cpuinfo | head -1
-```
-
-**Problem: Lista usług nie wyświetla się**
-```bash
-# Sprawdź czy systemctl działa
-systemctl --version
-
-# Sprawdź listę usług ręcznie
-systemctl list-units --type=service --state=running --no-pager
-
-# Sprawdź czy konkretne usługi działają
-systemctl status mywebui.service
-systemctl status NetworkManager
-```
-
-**Wyjaśnienie nowych funkcji:**
-- **Pamięć**: Wyświetla pełny output z `free -h` z wszystkimi szczegółami
-- **Procesor**: Czyta informacje z `/proc/cpuinfo` (model, liczba rdzeni, architektura)  
-- **Karta graficzna**: Używa `lspci` do wykrywania kart VGA/3D/Display
-- **Usługi**: Pokazuje liczbę + listę pierwszych 10 aktywnych usług
-- W systemach Live wszystkie dane pochodzą z aktualnego stanu RAM-dysku
-
-### 8.3. Debugowanie skryptu bannera
-
-Aby debugować skrypt, dodaj na początku:
-```bash
-#!/bin/bash
-set -x  # Włącz tryb debug
-# reszta skryptu...
-```
-
-### 8.4. Ręczne uruchomienie
-
-Jeśli automatyczne uruchamianie nie działa:
-```bash
-# Uruchom banner ręcznie
-sudo /usr/local/bin/startup-banner.sh
-
-# Lub dodaj do ~/.bashrc użytkownika
-echo "/usr/local/bin/startup-banner.sh" >> ~/.bashrc
-```
 
 ---
 
@@ -773,10 +648,12 @@ moj-debian-part4.1/
 │   │ 
 │   ├── package-lists/
 │   │   ├── base.list.chroot
+│   │   ├── utils.list.chroot
 │   │   └── python.list.chroot
 │   │ 
 │   └── hooks/
 │       └── normal/
+│           ├── configure-locale.chroot
 │           ├── install-webui.chroot
 │           ├── enable-mywebui.chroot
 │           ├── enable-startup-banner.chroot
@@ -790,7 +667,7 @@ moj-debian-part4.1/
 - [systemd.service – dokumentacja](https://www.freedesktop.org/software/systemd/man/systemd.service.html)
 - [TTY i getty w systemd](https://wiki.archlinux.org/title/Getty)
 - [Bash scripting – kolorowanie tekstu](https://misc.flogisoft.com/bash/tip_colors_and_formatting)
-- [live-build lb_config – dokumentacja konfiguracji](https://manpages.debian.org/unstable/live-build/lb_config.1.en.html)
+- [live-build lb_config – dokumentacja](https://manpages.debian.org/unstable/live-build/lb_config.1.en.html)
 - [Oficjalna dokumentacja Debian Live Systems](https://wiki.debian.org/DebianLive)
 
 ---

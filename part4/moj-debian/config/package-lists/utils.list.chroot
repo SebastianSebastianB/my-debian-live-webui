@@ -6,3 +6,4 @@ procps
 coreutils
 util-linux
 net-tools
+pciutils
