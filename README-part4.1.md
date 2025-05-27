@@ -74,6 +74,7 @@ procps
 coreutils
 util-linux
 net-tools
+pciutils
 ```
 
 **Objaśnienie pakietów:**
@@ -84,6 +85,7 @@ net-tools
 - `coreutils` - podstawowe narzędzia GNU (`ls`, `cat`, `grep`, `awk`)
 - `util-linux` - narzędzia systemowe (`mount`, `df`, `lsblk`)
 - `net-tools` - narzędzia sieciowe (`ifconfig`, `netstat`)
+- `pciutils` - narzędzia do wykrywania urządzeń PCI (`lspci`)
 
 ### 3.2. Konfiguracja locale
 
@@ -261,41 +263,58 @@ handle_menu() {
                 ;;
             4)
                 echo -e "\e[33m=== INFORMACJE O SYSTEMIE ===\e[0m"
-                echo "Hostname: $(hostname)"                
-                # Sprawdź dostępność komend systemowych
+                echo "Hostname: $(hostname)"                  # Sprawdź dostępność komend systemowych
                 if command -v uptime >/dev/null 2>&1; then
                     echo "Czas działania: $(uptime -p 2>/dev/null || uptime | cut -d',' -f1 | cut -d' ' -f3-)"
                 else
                     echo "Czas działania: $(cat /proc/uptime | cut -d' ' -f1 | awk '{printf "%.0f sekund", $1}')"
                 fi
                 
+                # Informacje o pamięci - pełne dane z free
                 if command -v free >/dev/null 2>&1; then
-                    echo "Użycie pamięci: $(free -h | grep Mem | awk '{print $3"/"$2}' 2>/dev/null || echo 'Niedostępne')"
+                    echo ""
+                    echo "=== PAMIĘĆ ==="
+                    free -h
                 else
-                    # Alternatywna metoda bez free - używa /proc/meminfo
-                    echo "Użycie pamięci: $(awk '
-                        /MemTotal/ { total = $2 }
-                        /MemFree/ { free = $2 }
-                        /Buffers/ { buffers = $2 }
-                        /Cached/ { cached = $2 }
-                        END { 
-                            if (total > 0) {
-                                used = total - free - buffers - cached
-                                printf "%.1fMB/%.1fMB", used/1024, total/1024
-                            } else {
-                                print "Niedostępne"
-                            }
-                        }' /proc/meminfo)"
+                    echo "Pamięć: Niedostępne (brak komendy free)"
                 fi
                 
+                # Informacje o procesorze
+                if [ -f /proc/cpuinfo ]; then
+                    echo ""
+                    echo "=== PROCESOR ==="
+                    echo "Model: $(grep 'model name' /proc/cpuinfo | head -1 | cut -d':' -f2 | sed 's/^ *//')"
+                    echo "Rdzenie: $(grep -c '^processor' /proc/cpuinfo)"
+                    echo "Architektura: $(uname -m)"
+                else
+                    echo "Procesor: Niedostępne"
+                fi
+                
+                # Informacje o karcie graficznej
+                echo ""
+                echo "=== KARTA GRAFICZNA ==="
+                if command -v lspci >/dev/null 2>&1; then
+                    lspci | grep -i 'vga\|3d\|display' | sed 's/^[0-9:.]* //' || echo "Nie wykryto karty graficznej"
+                else
+                    echo "Niedostępne (brak komendy lspci)"
+                fi
+                
+                # Użycie dysku
                 if command -v df >/dev/null 2>&1; then
+                    echo ""
+                    echo "=== DYSK ==="
                     echo "Użycie dysku: $(df -h / 2>/dev/null | tail -1 | awk '{print $3"/"$2" ("$5")"}' || echo 'Niedostępne')"
                 else
                     echo "Użycie dysku: Niedostępne"
                 fi
                 
+                # Lista aktywnych usług
                 if command -v systemctl >/dev/null 2>&1; then
-                    echo "Aktywne usługi: $(systemctl list-units --type=service --state=running 2>/dev/null | wc -l || echo 'Niedostępne')"
+                    echo ""
+                    echo "=== AKTYWNE USŁUGI ==="
+                    echo "Liczba usług: $(systemctl list-units --type=service --state=running 2>/dev/null | wc -l || echo 'Niedostępne')"
+                    echo "Lista głównych usług:"
+                    systemctl list-units --type=service --state=running --no-pager 2>/dev/null | grep -E '\.(service)' | head -10 | awk '{print "  - " $1}' || echo "  Niedostępne"
                 else
                     echo "Aktywne usługi: Niedostępne"
                 fi
@@ -664,42 +683,46 @@ netstat -tlnp | grep :8080
 journalctl -u mywebui.service
 ```
 
-**Problem: Brak komend systemowych (uptime, free)**
-- Upewnij się, że pakiety `procps`, `coreutils`, `util-linux` są w `base.list.chroot`
-- Skrypt automatycznie używa alternatywnych metod jeśli komendy nie są dostępne
+**Problem: Brak komend systemowych (uptime, free, lspci)**
+- Upewnij się, że pakiety `procps`, `coreutils`, `util-linux`, `pciutils` są w `base.list.chroot`
+- `procps` - dla komend `free`, `ps`, `top`, `uptime`
+- `pciutils` - dla komendy `lspci` (wykrywanie kart graficznych)
 
-**Problem: Użycie pamięci wyświetla "Niedostępne" lub nieprawidłowe wartości**
+**Problem: Informacje o systemie wyświetlają "Niedostępne"**
 ```bash
-# Sprawdź dostępność komend pamięci
+# Sprawdź dostępność komend
 command -v free && echo "free dostępne" || echo "free niedostępne"
+command -v lspci && echo "lspci dostępne" || echo "lspci niedostępne"
+command -v uptime && echo "uptime dostępne" || echo "uptime niedostępne"
 
-# Sprawdź dostępność /proc/meminfo
-cat /proc/meminfo | head -10
+# Sprawdź czy pliki systemowe istnieją
+ls -la /proc/cpuinfo /proc/meminfo /proc/uptime
 
-# Testuj ręcznie kod alternatywny
-awk '
-    /MemTotal/ { total = $2 }
-    /MemFree/ { free = $2 }
-    /Buffers/ { buffers = $2 }
-    /Cached/ { cached = $2 }
-    END { 
-        if (total > 0) {
-            used = total - free - buffers - cached
-            printf "%.1fMB/%.1fMB", used/1024, total/1024
-        } else {
-            print "Niedostępne"
-        }
-    }' /proc/meminfo
-
-# Sprawdź czy pakiet procps jest zainstalowany
-dpkg -l | grep procps
+# Testuj ręcznie komendy
+free -h
+lspci | grep -i 'vga\|3d\|display'
+grep 'model name' /proc/cpuinfo | head -1
 ```
 
-**Wyjaśnienie obsługi pamięci:**
-- Skrypt używa `free -h` jako pierwszą opcję (najłatwiejsza do odczytu)
-- Jeśli `free` nie jest dostępne, używa alternatywnej metody z `/proc/meminfo`
-- Alternatywna metoda oblicza użytą pamięć jako: `MemTotal - MemFree - Buffers - Cached`
-- W systemach Live (RAM-disk) wyświetlane są wartości użycia pamięci RAM
+**Problem: Lista usług nie wyświetla się**
+```bash
+# Sprawdź czy systemctl działa
+systemctl --version
+
+# Sprawdź listę usług ręcznie
+systemctl list-units --type=service --state=running --no-pager
+
+# Sprawdź czy konkretne usługi działają
+systemctl status mywebui.service
+systemctl status NetworkManager
+```
+
+**Wyjaśnienie nowych funkcji:**
+- **Pamięć**: Wyświetla pełny output z `free -h` z wszystkimi szczegółami
+- **Procesor**: Czyta informacje z `/proc/cpuinfo` (model, liczba rdzeni, architektura)  
+- **Karta graficzna**: Używa `lspci` do wykrywania kart VGA/3D/Display
+- **Usługi**: Pokazuje liczbę + listę pierwszych 10 aktywnych usług
+- W systemach Live wszystkie dane pochodzą z aktualnego stanu RAM-dysku
 
 ### 8.3. Debugowanie skryptu bannera
 
