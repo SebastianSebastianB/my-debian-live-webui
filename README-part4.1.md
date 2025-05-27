@@ -31,6 +31,24 @@ Banner wyświetla dynamicznie odczytywany adres IP WebUI oraz oferuje podstawowe
 
 ---
 
+> ⚠️❗**WAŻNE! Po pobraniu lub sklonowaniu repozytorium na systemie Linux należy nadać uprawnienia wykonywalności skryptom i hookom.**
+> 
+> W katalogu projektu uruchom:
+> 
+> ```bash
+> chmod +x config/includes.chroot/usr/local/bin/startup-banner.sh
+> chmod +x config/includes.chroot/usr/local/bin/update-issue.sh
+> chmod +x config/hooks/normal/configure-locale.chroot
+> chmod +x config/hooks/normal/enable-startup-banner.chroot
+> chmod +x config/hooks/normal/enable-update-issue.chroot
+> chmod +x config/hooks/normal/install-webui.chroot
+> chmod +x config/hooks/normal/enable-mywebui.chroot
+> ```
+> 
+> Bez tych uprawnień skrypty nie będą działać podczas budowy obrazu ISO!
+
+---
+
 ## 1. Wymagania
 
 - System: Debian 12 (Bookworm)
