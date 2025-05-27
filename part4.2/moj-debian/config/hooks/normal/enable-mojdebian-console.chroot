@@ -1,0 +1,4 @@
+#!/bin/sh
+chmod +x /usr/local/bin/mojdebian-shell.sh
+systemctl enable mojdebian-console.service
+systemctl disable getty@tty1.service

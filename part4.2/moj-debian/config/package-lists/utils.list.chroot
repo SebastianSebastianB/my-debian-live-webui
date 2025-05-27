@@ -7,3 +7,9 @@ coreutils
 util-linux
 net-tools
 pciutils
+
+lynx
+network-manager
+console-setup
+locales
+systemd
