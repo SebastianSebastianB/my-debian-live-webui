@@ -1,31 +1,47 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Ustawienie kodowania UTF-8 dla polskich z                if command -v free >/dev/null 2>&1; then
-                    echo "Użycie pamięci: $(free -h | grep Mem | awk '{print $3"/"$2}' 2>/dev/null || echo 'Niedostępne')"
-                else
-                    # Alternatywna metoda bez free - używa /proc/meminfo
-                    echo "Użycie pamięci: $(awk '
-                        /MemTotal/ { total = $2 }
-                        /MemFree/ { free = $2 }
-                        /Buffers/ { buffers = $2 }
-                        /Cached/ { cached = $2 }
-                        END { 
-                            if (total > 0) {
-                                used = total - free - buffers - cached
-                                printf "%.1fMB/%.1fMB", used/1024, total/1024
-                            } else {
-                                print "Niedostępne"
-                            }
-                        }' /proc/meminfo)"
-                fi
+# Ustawienie kodowania UTF-8 dla polskich znaków
 export LANG=pl_PL.UTF-8
 export LC_ALL=pl_PL.UTF-8
+
+# Funkcja pobierania IP z retry
+get_ip_with_retry() {
+    local max_attempts=10
+    local delay=2
+    local ip=""
+    
+    for i in $(seq 1 $max_attempts); do
+        ip=$(ip route get 1.1.1.1 2>/dev/null | awk '/src/ {print $7}' 2>/dev/null)
+        if [ -z "$ip" ]; then
+            ip=$(ip addr show | grep 'inet ' | grep -v '127.0.0.1' | head -1 | awk '{print $2}' | cut -d'/' -f1 2>/dev/null)
+        fi
+        if [ -z "$ip" ]; then
+            ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+        fi
+        
+        if [ -n "$ip" ] && [ "$ip" != "127.0.0.1" ]; then
+            echo "$ip"
+            return 0
+        fi
+        
+        # Wyświetl informację o próbie tylko przy pierwszym uruchomieniu
+        if [ $i -eq 1 ]; then
+            echo "Oczekiwanie na konfigurację sieci..." >&2
+        fi
+        
+        sleep $delay
+    done
+    
+    echo "brak połączenia"
+}
 
 # Funkcja wyświetlania bannera
 show_banner() {
     clear
-    # Pobierz aktualny adres IP
-    IP=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \\K\\S+' || echo "brak połączenia")
+    
+    # Pobierz aktualny adres IP z retry
+    IP=$(get_ip_with_retry)
+    
     # Wyświetl banner
     echo -e "\e[36m"  # Kolor cyan
     cat << "EOF"
@@ -37,15 +53,16 @@ show_banner() {
 ╚═╝     ╚═╝ ╚═════╝  ╚════╝ ╚═════╝ ╚══════╝╚═════╝ ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝
 EOF
     echo -e "\e[0m"  # Reset koloru
+    
     echo -e "\e[33mWersja: 1.0 - Twoja spersonalizowana dystrybucja Debian\e[0m"
     echo -e "\e[32mWebUI dostępne pod adresem: http://${IP}:8080\e[0m"
     echo ""
-    echo -e "\e[1;34m"
+    echo -e "\e[1;34m" # Bold niebieski    
     echo "╔════════════════════════════════════╗"
     echo "║               MENU                 ║"
-    echo "╠════════════════════════════════════╣"
+    echo "╠════════════════════════════════════╣"    
     echo "║  1) Ustawienia                     ║"
-    echo "║  2) Logowanie                      ║"
+    echo "║  2) Terminal                       ║"
     echo "║  3) Wyjście                        ║"
     echo "║  4) Informacje o systemie          ║"
     echo "║  5) Status usług                   ║"
@@ -58,6 +75,7 @@ handle_menu() {
     while true; do
         echo -n -e "\e[1;36mWybierz opcję (1-5): \e[0m"
         read choice
+        
         case $choice in
             1)
                 echo -e "\e[33m=== USTAWIENIA SYSTEMU ===\e[0m"
@@ -77,35 +95,70 @@ handle_menu() {
                         ;;
                     4) show_banner; handle_menu; return ;;
                 esac
-                ;;
-            2)
-                echo -e "\e[32mPrzechodzenie do logowania...\e[0m"
-                break
-                ;;
+                ;;            2)
+                echo -e "\e[32mPrzechodzenie do terminala Debian...\e[0m"
+                echo "Uruchamianie powłoki bash. Wpisz 'exit' aby wrócić do menu."
+                echo ""
+                exec /bin/bash
+                ;;            
             3)
                 echo -e "\e[31mZamykanie systemu...\e[0m"
                 sudo shutdown -h now
                 ;;
             4)
                 echo -e "\e[33m=== INFORMACJE O SYSTEMIE ===\e[0m"
-                echo "Hostname: $(hostname)"
+                echo "Hostname: $(hostname)"                  # Sprawdź dostępność komend systemowych
                 if command -v uptime >/dev/null 2>&1; then
                     echo "Czas działania: $(uptime -p 2>/dev/null || uptime | cut -d',' -f1 | cut -d' ' -f3-)"
                 else
-                    echo "Czas działania: $(cat /proc/uptime | cut -d' ' -f1 | awk '{printf \"%.0f sekund\", $1}')"
+                    echo "Czas działania: $(cat /proc/uptime | cut -d' ' -f1 | awk '{printf "%.0f sekund", $1}')"
                 fi
+                
+                # Informacje o pamięci - pełne dane z free
                 if command -v free >/dev/null 2>&1; then
-                    echo "Użycie pamięci: $(free -h | grep Mem | awk '{print $3"/"$2}' 2>/dev/null || echo 'Niedostępne')"
+                    echo ""
+                    echo "=== PAMIĘĆ ==="
+                    free -h
                 else
-                    echo "Użycie pamięci: $(awk '/MemTotal/ {total=$2} /MemAvailable/ {avail=$2} END {used=total-avail; printf \"%.1fMB/%.1fMB\", used/1024, total/1024}' /proc/meminfo)"
+                    echo "Pamięć: Niedostępne (brak komendy free)"
                 fi
+                
+                # Informacje o procesorze
+                if [ -f /proc/cpuinfo ]; then
+                    echo ""
+                    echo "=== PROCESOR ==="
+                    echo "Model: $(grep 'model name' /proc/cpuinfo | head -1 | cut -d':' -f2 | sed 's/^ *//')"
+                    echo "Rdzenie: $(grep -c '^processor' /proc/cpuinfo)"
+                    echo "Architektura: $(uname -m)"
+                else
+                    echo "Procesor: Niedostępne"
+                fi
+                
+                # Informacje o karcie graficznej
+                echo ""
+                echo "=== KARTA GRAFICZNA ==="
+                if command -v lspci >/dev/null 2>&1; then
+                    lspci | grep -i 'vga\|3d\|display' | sed 's/^[0-9:.]* //' || echo "Nie wykryto karty graficznej"
+                else
+                    echo "Niedostępne (brak komendy lspci)"
+                fi
+                
+                # Użycie dysku
                 if command -v df >/dev/null 2>&1; then
+                    echo ""
+                    echo "=== DYSK ==="
                     echo "Użycie dysku: $(df -h / 2>/dev/null | tail -1 | awk '{print $3"/"$2" ("$5")"}' || echo 'Niedostępne')"
                 else
                     echo "Użycie dysku: Niedostępne"
                 fi
+                
+                # Lista aktywnych usług
                 if command -v systemctl >/dev/null 2>&1; then
-                    echo "Aktywne usługi: $(systemctl list-units --type=service --state=running 2>/dev/null | wc -l || echo 'Niedostępne')"
+                    echo ""
+                    echo "=== AKTYWNE USŁUGI ==="
+                    echo "Liczba usług: $(systemctl list-units --type=service --state=running 2>/dev/null | wc -l || echo 'Niedostępne')"
+                    echo "Lista głównych usług:"
+                    systemctl list-units --type=service --state=running --no-pager 2>/dev/null | grep -E '\.(service)' | head -10 | awk '{print "  - " $1}' || echo "  Niedostępne"
                 else
                     echo "Aktywne usługi: Niedostępne"
                 fi

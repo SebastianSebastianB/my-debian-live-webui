@@ -252,7 +252,8 @@ handle_menu() {
                         ;;
                     4) show_banner; handle_menu; return ;;
                 esac
-                ;;            2)
+                ;;            
+            2)
                 echo -e "\e[32mPrzechodzenie do terminala Debian...\e[0m"
                 echo "Uruchamianie powłoki bash. Wpisz 'exit' aby wrócić do menu."
                 echo ""

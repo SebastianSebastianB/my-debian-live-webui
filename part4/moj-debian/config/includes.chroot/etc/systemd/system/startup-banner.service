@@ -1,7 +1,8 @@
 [Unit]
 Description=Startup Banner with Menu
-After=network.target mywebui.service
-Wants=network.target
+After=network-online.target mywebui.service
+Wants=network-online.target
+Requires=network-online.target
 
 [Service]
 Type=oneshot

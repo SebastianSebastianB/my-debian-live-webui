@@ -1,0 +1,8 @@
+# Obsługa polskich znaków
+locales
+console-setup
+keyboard-configuration
+procps
+coreutils
+util-linux
+net-tools
