@@ -219,7 +219,7 @@ EOF
     echo "║               MENU                 ║"
     echo "╠════════════════════════════════════╣"    
     echo "║  1) Ustawienia                     ║"
-    echo "║  2) Logowanie na Terminal          ║"
+    echo "║  2) Terminal                       ║"
     echo "║  3) Wyjście                        ║"
     echo "║  4) Informacje o systemie          ║"
     echo "║  5) Status usług                   ║"
